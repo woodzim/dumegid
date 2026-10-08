@@ -103,10 +103,7 @@ export default function HeroSection() {
                 </div>
             </div>
 
-            {/* Layer 4: Clean bottom transition to white base */}
-            <div className="dmg-hero-bottom-transition" />
-
-            {/* Layer 5: Floating Frosted Glass Card & Navigation Controls */}
+            {/* Layer 4: Floating Frosted Glass Card & Navigation Controls */}
             <div className="dmg-hero-card-layer">
                 <div className="dmg-hero-floating-card">
                     <div className="dmg-hero-tag">
