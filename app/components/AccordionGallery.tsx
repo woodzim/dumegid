@@ -247,7 +247,7 @@ export default function AccordionGallery({
         return (
           <Tag
             key={item.label + i}
-            ref={(el) => {
+            ref={(el: HTMLElement | null) => {
               panelRefs.current[i] = el;
             }}
             className="group relative block min-w-0 min-h-0 flex-[1_1_0] cursor-pointer overflow-hidden bg-[#070e3a] no-underline outline-none [transform-style:preserve-3d] [transform-origin:center] [box-shadow:0_12px_36px_-12px_rgba(0,0,0,0.6)] focus-visible:[box-shadow:0_0_0_2px_var(--ag-accent),0_12px_36px_-12px_rgba(0,0,0,0.6)] max-[640px]:min-h-[96px] max-[640px]:!transform-none"
