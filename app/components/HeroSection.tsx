@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import Image from 'next/image';
+import TechText from './TechText';
 
 interface HeroSlide {
     id: number;
@@ -75,32 +76,50 @@ export default function HeroSection() {
                 />
             </div>
 
-            {/* Layer 2: Giant Typography Layer (Behind Crew Heads & Torso) */}
+            {/* Layer 2: 3D Interleaved TechText + Sandwiched Foreground Cutout */}
             <div className="dmg-hero-text-layer">
-                <h1
+                <TechText
                     key={currentSlide.giantText}
-                    className="dmg-hero-giant-title"
+                    text={currentSlide.giantText}
+                    fontFamily="'Bebas Neue', 'Impact', sans-serif"
+                    fontWeight={900}
+                    fontSize={220}
+                    letterSpacing={0.02}
+                    color="#ffffff"
+                    accentColor="#3c4eef"
+                    reach={180}
+                    softness={0.7}
+                    dashLength={4}
+                    dashGap={2}
+                    strokeWidth={1.8}
+                    lineStyle="dashed"
+                    reveal="letter"
+                    specks={15}
+                    selection={true}
+                    labels={true}
+                    draggable={true}
+                    sweep={true}
+                    speed={1}
+                    className="w-full h-full"
                 >
-                    {currentSlide.giantText}
-                </h1>
-            </div>
-
-            {/* Layer 3: Foreground DUMEG Crew Cutout (Pops in front of Giant Text) */}
-            <div className="dmg-hero-cutout-layer">
-                <div className="dmg-hero-model-wrap">
-                    <Image
-                        src="/images/model_dumeg_v2.png"
-                        alt="DUMEG Modern Team & Engineers"
-                        fill
-                        priority
-                        unoptimized
-                        sizes="(max-width: 1024px) 100vw, 1400px"
-                        style={{
-                            objectFit: 'contain',
-                            objectPosition: 'center bottom',
-                        }}
-                    />
-                </div>
+                    {/* Sandwiched Cutout Layer: in front of idle letters, behind hovered letters */}
+                    <div className="dmg-hero-cutout-layer">
+                        <div className="dmg-hero-model-wrap">
+                            <Image
+                                src="/images/model_dumeg_v2.png"
+                                alt="DUMEG Modern Team & Engineers"
+                                fill
+                                priority
+                                unoptimized
+                                sizes="(max-width: 1024px) 100vw, 1400px"
+                                style={{
+                                    objectFit: 'contain',
+                                    objectPosition: 'center bottom',
+                                }}
+                            />
+                        </div>
+                    </div>
+                </TechText>
             </div>
 
             {/* Layer 4: Floating Frosted Glass Card & Navigation Controls */}

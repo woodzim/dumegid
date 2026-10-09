@@ -32,6 +32,9 @@ export interface ScrollExpandProps {
   style?: CSSProperties;
   scrimClassName?: string;
   overlayClassName?: string;
+  titleClassName?: string;
+  hintClassName?: string;
+  titleStyle?: CSSProperties;
   [key: string]: any;
 }
 
@@ -58,6 +61,9 @@ export default function ScrollExpand({
   style,
   scrimClassName = '',
   overlayClassName = '',
+  titleClassName = '',
+  hintClassName = '',
+  titleStyle,
   ...rest
 }: ScrollExpandProps) {
   const rootRef = useRef<HTMLDivElement>(null);
@@ -306,8 +312,11 @@ export default function ScrollExpand({
           {title ? (
             <div
               ref={titleRef}
-              className="absolute inset-0 flex items-center justify-center m-0 px-[6%] text-center font-bold leading-none tracking-[-0.03em] text-white [font-size:var(--se-title-size)] [text-shadow:0_4px_30px_rgba(0,0,0,0.8)] pointer-events-none [will-change:opacity,transform]"
-              style={{ fontFamily: "'Helvetica', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" }}
+              className={`absolute inset-0 flex items-center justify-center m-0 px-[6%] text-center font-bold leading-none tracking-[-0.03em] ${titleClassName || 'text-white [text-shadow:0_4px_30px_rgba(0,0,0,0.8)]'} [font-size:var(--se-title-size)] pointer-events-none [will-change:opacity,transform]`}
+              style={{
+                fontFamily: "'Helvetica', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif",
+                ...titleStyle,
+              }}
             >
               {title}
             </div>
@@ -315,7 +324,7 @@ export default function ScrollExpand({
           {scrollHint ? (
             <div
               ref={hintRef}
-              className="absolute inset-x-0 bottom-6 text-center text-[0.875rem] font-bold tracking-[0.06em] text-white pointer-events-none [will-change:opacity,transform] [text-shadow:0_2px_10px_rgba(3,10,40,0.8)]"
+              className={`absolute inset-x-0 bottom-6 text-center text-[0.875rem] font-bold tracking-[0.06em] ${hintClassName || 'text-white [text-shadow:0_2px_10px_rgba(3,10,40,0.8)]'} pointer-events-none [will-change:opacity,transform]`}
               style={{ fontFamily: "'Helvetica', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" }}
             >
               {scrollHint}
