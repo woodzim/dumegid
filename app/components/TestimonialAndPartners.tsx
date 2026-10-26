@@ -1,5 +1,6 @@
 'use client';
 import { useState } from 'react';
+import { Asterisk, CircleButton, Notch } from './DmgKit';
 
 const TESTIMONIALS = [
     {
@@ -37,156 +38,131 @@ export default function TestimonialAndPartners() {
     const currentTesti = TESTIMONIALS[testiIndex];
 
     return (
-        <section className="dmg-section">
-            <div className="dmg-container">
-                <div style={{
-                    display: 'grid',
-                    gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))',
-                    gap: 24,
-                    alignItems: 'stretch',
-                }}>
-                    {/* Left Card: Testimonial */}
-                    <div
-                        className="dmg-card-glass"
-                        style={{
-                            display: 'flex',
-                            flexDirection: 'column',
-                            justifyContent: 'space-between',
-                            minHeight: 340,
-                            padding: 36,
-                        }}
-                    >
-                        <div>
-                            <span className="dmg-section-tag" style={{ marginBottom: 20 }}>
-                                KATA MEREKA
-                            </span>
-                            <blockquote style={{
-                                fontSize: 'clamp(20px, 2.2vw, 26px)',
-                                fontWeight: 600,
-                                lineHeight: 1.35,
-                                color: '#ffffff',
-                                letterSpacing: '-0.02em',
-                            }}>
-                                {currentTesti.quote}
-                            </blockquote>
-                        </div>
+        <section className="dmg-section" aria-label="Testimoni dan Rekan Kerjasama">
+            <div className="dmg-container tp-grid">
+                {/* Testimonial */}
+                <div className="dmg-card dmg-card-dark tp-testi">
+                    <Notch corner="tl" className="dmg-notch-icon">
+                        <Asterisk size={28} />
+                    </Notch>
 
-                        <div style={{
-                            display: 'flex',
-                            alignItems: 'flex-end',
-                            justifyContent: 'space-between',
-                            paddingTop: 24,
-                            marginTop: 24,
-                            borderTop: '1px solid rgba(255,255,255,0.14)',
-                        }}>
-                            <div>
-                                <div style={{ fontSize: 15, fontWeight: 700, color: '#ffffff' }}>
-                                    {currentTesti.author}
-                                </div>
-                                <div style={{ fontSize: 12, color: '#cbd8fc', marginTop: 2 }}>
-                                    {currentTesti.sub}
-                                </div>
-                            </div>
-
-                            <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                                <button
-                                    type="button"
-                                    onClick={handlePrev}
-                                    className="dmg-arrow-btn"
-                                    aria-label="Previous testimonial"
-                                >
-                                    <svg width="15" height="15" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M15 19l-7-7 7-7" />
-                                    </svg>
-                                </button>
-                                <button
-                                    type="button"
-                                    onClick={handleNext}
-                                    className="dmg-arrow-btn"
-                                    aria-label="Next testimonial"
-                                >
-                                    <svg width="15" height="15" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M9 5l7 7-7 7" />
-                                    </svg>
-                                </button>
-                            </div>
-                        </div>
+                    <div className="tp-testi-head">
+                        <span className="dmg-mono tp-k">Kata mereka</span>
+                        <span className="dmg-mono tp-k">
+                            {testiIndex + 1}/{TESTIMONIALS.length}
+                        </span>
                     </div>
 
-                    {/* Right Card: Rekan Kerjasama (White Card) */}
-                    <div
-                        className="dmg-card-white"
-                        style={{
-                            display: 'flex',
-                            flexDirection: 'column',
-                            justifyContent: 'space-between',
-                            minHeight: 340,
-                            padding: 36,
-                        }}
-                    >
+                    <blockquote key={testiIndex} className="tp-quote dmg-fade-in">
+                        {currentTesti.quote}
+                    </blockquote>
+
+                    <div className="tp-testi-foot">
                         <div>
-                            <span style={{
-                                fontSize: 11.5,
-                                fontWeight: 700,
-                                letterSpacing: '0.1em',
-                                textTransform: 'uppercase',
-                                color: '#94a3b8',
-                                display: 'block',
-                                marginBottom: 18,
-                            }}>
-                                REKAN KERJASAMA
-                            </span>
-
-                            {/* Partner badges row */}
-                            <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8, marginBottom: 24 }}>
-                                {PARTNERS.map((partner) => (
-                                    <span
-                                        key={partner.name}
-                                        style={{
-                                            fontSize: 12,
-                                            fontWeight: 700,
-                                            padding: '6px 14px',
-                                            borderRadius: 9999,
-                                            background: partner.active ? '#1432e3' : '#f1f5f9',
-                                            color: partner.active ? '#ffffff' : '#334155',
-                                        }}
-                                    >
-                                        {partner.name}
-                                    </span>
-                                ))}
-                            </div>
-
-                            <h3 style={{
-                                fontSize: 'clamp(22px, 2.3vw, 28px)',
-                                fontWeight: 700,
-                                color: '#0d1428',
-                                lineHeight: 1.25,
-                                marginBottom: 12,
-                                letterSpacing: '-0.02em',
-                            }}>
-                                Bersama Perusahaan Tally Maritim Indonesia
-                            </h3>
-
-                            <p style={{ fontSize: 13.5, lineHeight: 1.6, color: '#64748b' }}>
-                                Didukung puluhan mitra maritim andalan di seluruh Indonesia untuk percepatan digitalisasi operasional pelabuhan modern yang transparan dan akurat.
-                            </p>
+                            <div className="dmg-mono tp-author">{currentTesti.author}</div>
+                            <div className="dmg-mono tp-k" style={{ marginTop: 8 }}>{currentTesti.sub}</div>
                         </div>
+                        <div style={{ display: 'flex', gap: 8 }}>
+                            <CircleButton onClick={handlePrev} label="Testimoni sebelumnya" direction="prev" tone="light" />
+                            <CircleButton onClick={handleNext} label="Testimoni berikutnya" direction="next" tone="light" />
+                        </div>
+                    </div>
+                </div>
 
-                        <div style={{
-                            paddingTop: 20,
-                            borderTop: '1px solid #f1f5f9',
-                            display: 'flex',
-                            justifyContent: 'space-between',
-                            fontSize: 12,
-                            color: '#64748b',
-                            fontWeight: 600,
-                        }}>
-                            <span>Jangkauan Pelabuhan Nasional</span>
-                            <span style={{ color: '#1432e3', fontWeight: 700 }}>14+ Wilayah Operasi</span>
+                {/* Partners */}
+                <div className="dmg-card tp-partners">
+                    <Notch corner="tr">Rekan kerjasama</Notch>
+
+                    <div className="tp-reach">
+                        <span className="dmg-num tp-reach-num">14+</span>
+                        <span className="dmg-mono tp-reach-label">Wilayah operasi</span>
+                    </div>
+
+                    <div>
+                        <h3 className="tp-title">Bersama perusahaan tally maritim Indonesia</h3>
+                        <p className="tp-desc">
+                            Didukung puluhan mitra maritim andalan di seluruh Indonesia untuk percepatan digitalisasi operasional pelabuhan modern yang transparan dan akurat.
+                        </p>
+                        <div className="dmg-pill-row" style={{ marginTop: 20 }}>
+                            {PARTNERS.map((partner) => (
+                                <span key={partner.name} className={`dmg-pill ${partner.active ? 'dmg-pill-dark' : ''}`}>
+                                    {partner.name}
+                                </span>
+                            ))}
                         </div>
                     </div>
                 </div>
             </div>
+
+            <style>{`
+                .tp-grid {
+                    display: grid;
+                    grid-template-columns: minmax(0, 7fr) minmax(0, 5fr);
+                    gap: 12px;
+                }
+                .tp-testi {
+                    display: flex;
+                    flex-direction: column;
+                    justify-content: space-between;
+                    gap: 32px;
+                    min-height: 440px;
+                    padding: 28px;
+                }
+                .tp-testi-head {
+                    display: flex;
+                    justify-content: space-between;
+                    padding-left: 72px;
+                    padding-top: 8px;
+                }
+                .tp-k { font-size: 10px; color: var(--dmg-on-dark-soft); }
+                .tp-quote {
+                    font-family: var(--font-main);
+                    font-size: clamp(24px, 2.6vw, 38px);
+                    line-height: 1.1;
+                    letter-spacing: -0.03em;
+                    max-width: 640px;
+                }
+                .tp-testi-foot {
+                    display: flex;
+                    align-items: flex-end;
+                    justify-content: space-between;
+                    gap: 16px;
+                }
+                .tp-author { font-size: 12px; color: var(--dmg-accent); }
+
+                .tp-partners {
+                    display: flex;
+                    flex-direction: column;
+                    justify-content: space-between;
+                    gap: 32px;
+                    padding: 28px;
+                }
+                .tp-reach { display: flex; flex-direction: column; gap: 12px; }
+                .tp-reach-num { font-size: clamp(72px, 8vw, 120px); }
+                .tp-reach-label { font-size: 12px; }
+                .tp-title {
+                    font-family: var(--font-main);
+                    font-size: clamp(22px, 2vw, 28px);
+                    font-weight: 400;
+                    line-height: 1.1;
+                    letter-spacing: -0.03em;
+                }
+                .tp-desc {
+                    font-size: 13.5px;
+                    line-height: 1.6;
+                    color: var(--dmg-ink-soft);
+                    margin-top: 12px;
+                }
+
+                @media (max-width: 900px) {
+                    .tp-grid { grid-template-columns: 1fr; }
+                    .tp-testi { min-height: 380px; }
+                }
+                @media (max-width: 520px) {
+                    .tp-testi, .tp-partners { padding: 20px; }
+                    .tp-partners .dmg-notch { display: none; }
+                }
+            `}</style>
         </section>
     );
 }

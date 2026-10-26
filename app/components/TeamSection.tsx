@@ -1,5 +1,6 @@
 'use client';
-import { useState, useRef } from 'react';
+import { useState } from 'react';
+import { Asterisk, HalfDisc, Notch, SectionHead } from './DmgKit';
 
 interface Member {
     id: string;
@@ -49,170 +50,100 @@ const MEMBERS: Member[] = [
 
 export default function TeamSection() {
     const [selectedId, setSelectedId] = useState<string>('dg');
-    const scrollRef = useRef<HTMLDivElement>(null);
-
-    const handlePrev = () => {
-        const curr = MEMBERS.findIndex((m) => m.id === selectedId);
-        const prev = (curr - 1 + MEMBERS.length) % MEMBERS.length;
-        setSelectedId(MEMBERS[prev].id);
-        scrollRef.current?.scrollBy({ left: -260, behavior: 'smooth' });
-    };
-
-    const handleNext = () => {
-        const curr = MEMBERS.findIndex((m) => m.id === selectedId);
-        const next = (curr + 1) % MEMBERS.length;
-        setSelectedId(MEMBERS[next].id);
-        scrollRef.current?.scrollBy({ left: 260, behavior: 'smooth' });
-    };
 
     return (
-        <section id="tim" className="dmg-section">
+        <section id="tim" className="dmg-section" aria-label="Tim Engineer">
             <div className="dmg-container">
-                {/* Header */}
-                <div className="dmg-section-header">
-                    <div>
-                        <span className="dmg-section-tag">TIM</span>
-                        <h2 className="dmg-section-title" style={{ maxWidth: 640 }}>
-                            Engineer Yang Bikin Sistem Logistik Kamu Jalan Tanpa Hambatan
-                        </h2>
-                    </div>
+                <SectionHead
+                    index="04"
+                    label="Tim"
+                    title={
+                        <>
+                            Engineer di balik
+                            <HalfDisc />
+                            <br />
+                            sistem kamu
+                            <Asterisk />
+                        </>
+                    }
+                    aside={
+                        <p>Engineer yang bikin sistem logistik kamu jalan tanpa hambatan, dari infrastruktur sampai aplikasi lapangan.</p>
+                    }
+                />
 
-                    <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                        <button
-                            type="button"
-                            onClick={handlePrev}
-                            className="dmg-arrow-btn"
-                            aria-label="Previous engineer"
-                        >
-                            <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M15 19l-7-7 7-7" />
-                            </svg>
-                        </button>
-                        <button
-                            type="button"
-                            onClick={handleNext}
-                            className="dmg-arrow-btn"
-                            aria-label="Next engineer"
-                        >
-                            <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M9 5l7 7-7 7" />
-                            </svg>
-                        </button>
-                    </div>
-                </div>
-
-                {/* Team Cards Row */}
-                <div
-                    ref={scrollRef}
-                    className="no-scrollbar"
-                    style={{
-                        display: 'flex',
-                        gap: 20,
-                        overflowX: 'auto',
-                        paddingBottom: 20,
-                        scrollSnapType: 'x mandatory',
-                    }}
-                >
-                    {MEMBERS.map((member) => {
+                <div className="tm-grid">
+                    {MEMBERS.map((member, idx) => {
                         const isActive = member.id === selectedId;
 
                         return (
-                            <div
+                            <button
                                 key={member.id}
+                                type="button"
                                 onClick={() => setSelectedId(member.id)}
-                                className={isActive ? 'dmg-card-white' : 'dmg-card-glass'}
-                                style={{
-                                    flex: '0 0 auto',
-                                    width: 250,
-                                    padding: 0,
-                                    overflow: 'hidden',
-                                    borderRadius: 24,
-                                    cursor: 'pointer',
-                                    display: 'flex',
-                                    flexDirection: 'column',
-                                    justifyContent: 'space-between',
-                                    scrollSnapAlign: 'start',
-                                }}
+                                aria-pressed={isActive}
+                                className={`dmg-card tm-card ${isActive ? 'dmg-card-dark' : ''}`}
                             >
-                                {/* Top Monogram Box */}
-                                <div
-                                    style={{
-                                        height: 200,
-                                        display: 'flex',
-                                        alignItems: 'center',
-                                        justifyContent: 'center',
-                                        background: isActive ? '#d8e4ff' : 'transparent',
-                                        transition: 'background 0.25s ease',
-                                    }}
-                                >
-                                    <span
-                                        style={{
-                                            fontSize: 54,
-                                            fontWeight: 700,
-                                            letterSpacing: '-0.03em',
-                                            color: isActive ? '#1432e3' : 'rgba(255,255,255,0.35)',
-                                            userSelect: 'none',
-                                        }}
-                                    >
-                                        {member.initials}
-                                    </span>
-                                </div>
+                                <Notch corner="tr">
+                                    {idx + 1}/{MEMBERS.length}
+                                </Notch>
 
-                                {/* Bottom Info Box */}
-                                <div style={{ padding: '20px 22px' }}>
-                                    <h3
-                                        style={{
-                                            fontSize: 16.5,
-                                            fontWeight: 700,
-                                            color: isActive ? '#0d1428' : '#ffffff',
-                                            lineHeight: 1.2,
-                                        }}
-                                    >
-                                        {member.name}
-                                    </h3>
-                                    <p
-                                        style={{
-                                            fontSize: 12,
-                                            color: isActive ? '#64748b' : '#cbd8fc',
-                                            marginTop: 4,
-                                        }}
-                                    >
-                                        {member.role}
-                                    </p>
+                                <span className="dmg-num tm-initials">{member.initials}</span>
 
-                                    {/* Tech tags */}
+                                <span className="tm-info">
+                                    <span className="dmg-mono tm-name">{member.name}</span>
+                                    <span className="dmg-mono tm-role">{member.role}</span>
                                     {isActive && (
-                                        <div style={{
-                                            display: 'flex',
-                                            flexWrap: 'wrap',
-                                            gap: 6,
-                                            marginTop: 14,
-                                            paddingTop: 12,
-                                            borderTop: '1px solid #f1f5f9',
-                                        }}>
+                                        <span className="dmg-pill-row tm-skills">
                                             {member.skills.map((skill) => (
-                                                <span
-                                                    key={skill}
-                                                    style={{
-                                                        fontSize: 10,
-                                                        fontWeight: 600,
-                                                        background: '#f1f5f9',
-                                                        color: '#334155',
-                                                        padding: '3px 8px',
-                                                        borderRadius: 9999,
-                                                    }}
-                                                >
+                                                <span key={skill} className="dmg-pill dmg-pill-ghost dmg-fade-in">
                                                     {skill}
                                                 </span>
                                             ))}
-                                        </div>
+                                        </span>
                                     )}
-                                </div>
-                            </div>
+                                </span>
+                            </button>
                         );
                     })}
                 </div>
             </div>
+
+            <style>{`
+                .tm-grid {
+                    display: grid;
+                    grid-template-columns: repeat(5, minmax(0, 1fr));
+                    gap: 12px;
+                }
+                .tm-card {
+                    display: flex;
+                    flex-direction: column;
+                    justify-content: space-between;
+                    gap: 24px;
+                    min-height: 320px;
+                    border: none;
+                    text-align: left;
+                    font: inherit;
+                    cursor: pointer;
+                    transition: background 0.25s ease, color 0.25s ease;
+                }
+                .tm-card:not(.dmg-card-dark):hover { background: var(--dmg-muted); }
+                .tm-card:focus-visible { outline: 2px solid var(--dmg-accent); outline-offset: 2px; }
+                .tm-initials { font-size: clamp(48px, 5vw, 72px); }
+                .tm-card.dmg-card-dark .tm-initials { color: var(--dmg-accent); }
+                .tm-info { display: flex; flex-direction: column; gap: 8px; }
+                .tm-name { font-size: 13px; line-height: 1.3; }
+                .tm-role { font-size: 10px; color: var(--dmg-ink-mute); }
+                .tm-card.dmg-card-dark .tm-role { color: var(--dmg-on-dark-soft); }
+                .tm-skills { margin-top: 8px; }
+
+                @media (max-width: 1024px) {
+                    .tm-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+                }
+                @media (max-width: 640px) {
+                    .tm-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+                    .tm-card { min-height: 240px; padding: 20px; }
+                }
+            `}</style>
         </section>
     );
 }

@@ -44,7 +44,7 @@ export default function AccordionGallery({
   items,
   defaultIndex = 0,
   accentColor = '#3c4eef',
-  overlayColor = '#060e3a',
+  overlayColor = '#0d0e10',
   textColor = '#ffffff',
   height = 480,
   gap = 12,
@@ -250,13 +250,9 @@ export default function AccordionGallery({
             ref={(el: HTMLElement | null) => {
               panelRefs.current[i] = el;
             }}
-            className="group relative block min-w-0 min-h-0 flex-[1_1_0] cursor-pointer overflow-hidden bg-[#070e3a] no-underline outline-none [transform-style:preserve-3d] [transform-origin:center] [box-shadow:0_12px_36px_-12px_rgba(0,0,0,0.6)] focus-visible:[box-shadow:0_0_0_2px_var(--ag-accent),0_12px_36px_-12px_rgba(0,0,0,0.6)] max-[640px]:min-h-[96px] max-[640px]:!transform-none"
+            className="group relative block min-w-0 min-h-0 flex-[1_1_0] cursor-pointer overflow-hidden bg-[var(--dmg-dark)] no-underline outline-none [transform-style:preserve-3d] [transform-origin:center] focus-visible:[outline:2px_solid_var(--dmg-accent)] focus-visible:[outline-offset:2px] max-[640px]:min-h-[96px] max-[640px]:!transform-none"
             style={{
               borderRadius: `${radius}px`,
-              border: isActive ? `1px solid rgba(255,255,255,0.4)` : `1px solid rgba(255,255,255,0.08)`,
-              boxShadow: isActive
-                ? `0 20px 40px -12px ${currentAccent}35, 0 12px 30px -10px rgba(0,0,0,0.7)`
-                : '0 12px 28px -10px rgba(0,0,0,0.5)',
               willChange: 'flex-grow, transform',
             }}
             href={item.link || undefined}
@@ -310,7 +306,7 @@ export default function AccordionGallery({
                 className="pointer-events-none absolute inset-x-0 bottom-0 h-32 transition-opacity duration-300"
                 style={{
                   background:
-                    'linear-gradient(to top, rgba(3, 7, 28, 0.85) 0%, rgba(3, 7, 28, 0.3) 50%, transparent 100%)',
+                    'linear-gradient(to top, rgba(13, 14, 16, 0.85) 0%, rgba(13, 14, 16, 0.3) 50%, transparent 100%)',
                   opacity: isActive ? 1 : 0,
                 }}
                 aria-hidden="true"
@@ -323,21 +319,7 @@ export default function AccordionGallery({
                 className="pointer-events-none absolute bottom-4 left-4 z-[1] flex items-center gap-2 max-[640px]:hidden"
                 aria-hidden="true"
               >
-                <span
-                  style={{
-                    background: 'rgba(255,255,255,0.15)',
-                    backdropFilter: 'blur(8px)',
-                    border: '1px solid rgba(255,255,255,0.2)',
-                    padding: '4px 10px',
-                    borderRadius: '8px',
-                    fontSize: '11px',
-                    fontWeight: 700,
-                    color: '#ffffff',
-                    letterSpacing: '0.05em',
-                  }}
-                >
-                  {item.abbr || item.label}
-                </span>
+                <span className="dmg-pill">{item.abbr || item.label}</span>
               </span>
             )}
 
@@ -351,11 +333,8 @@ export default function AccordionGallery({
                   ref={(el) => {
                     barRefs.current[i] = el;
                   }}
-                  className="h-[30px] w-[4px] flex-none rounded-[4px] opacity-0"
-                  style={{
-                    background: currentAccent,
-                    boxShadow: `0 0 16px ${currentAccent}`,
-                  }}
+                  className="h-[12px] w-[12px] flex-none rounded-full opacity-0"
+                  style={{ background: currentAccent }}
                 />
                 <div
                   ref={(el) => {
@@ -364,13 +343,13 @@ export default function AccordionGallery({
                   className="overflow-hidden opacity-0"
                 >
                   <span
-                    className="block text-[11px] font-bold uppercase tracking-[0.14em]"
+                    className="block text-[10px] uppercase tracking-[0.04em] [font-family:var(--font-mono)]"
                     style={{ color: currentAccent }}
                   >
                     {item.abbr || 'ASOSIASI'}
                   </span>
                   <span
-                    className="block overflow-hidden text-ellipsis whitespace-nowrap text-[clamp(1.1rem,1.6vw,1.5rem)] font-bold tracking-[-0.01em] [text-shadow:0_2px_14px_rgba(0,0,0,0.7)]"
+                    className="block overflow-hidden text-ellipsis whitespace-nowrap text-[clamp(1.1rem,1.6vw,1.5rem)] tracking-[-0.03em] [text-shadow:0_2px_14px_rgba(0,0,0,0.5)]"
                     style={{ color: textColor }}
                   >
                     {item.label}

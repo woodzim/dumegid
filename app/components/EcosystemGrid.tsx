@@ -1,3 +1,5 @@
+import { Asterisk, Notch } from './DmgKit';
+
 export default function EcosystemGrid() {
     const categories = [
         {
@@ -26,78 +28,92 @@ export default function EcosystemGrid() {
         },
     ];
 
-    return (
-        <section id="ekosistem" className="dmg-section" style={{ paddingTop: 40, paddingBottom: 40 }}>
-            <div className="dmg-container">
-                <div style={{
-                    display: 'grid',
-                    gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))',
-                    gap: 20,
-                }}>
-                    {categories.map((cat) => (
-                        <div
-                            key={cat.title}
-                            className="dmg-card-glass"
-                            style={{
-                                padding: 26,
-                                borderRadius: 24,
-                                display: 'flex',
-                                flexDirection: 'column',
-                                justifyContent: 'space-between',
-                                minHeight: 220,
-                            }}
-                        >
-                            <div>
-                                <span style={{
-                                    fontSize: 11,
-                                    fontWeight: 700,
-                                    letterSpacing: '0.1em',
-                                    color: '#a4beff',
-                                    display: 'block',
-                                    marginBottom: 6,
-                                }}>
-                                    {cat.num}
-                                </span>
-                                <h3 style={{
-                                    fontSize: 19,
-                                    fontWeight: 700,
-                                    color: '#ffffff',
-                                    letterSpacing: '-0.01em',
-                                    marginBottom: 2,
-                                }}>
-                                    {cat.title}
-                                </h3>
-                                <p style={{ fontSize: 12, color: '#cbd8fc', marginBottom: 20 }}>
-                                    {cat.desc}
-                                </p>
-                            </div>
+    const totalApps = categories.reduce((sum, cat) => sum + cat.apps.length, 0);
 
-                            <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+    return (
+        <section id="ekosistem" className="dmg-section" aria-label="Ekosistem Aplikasi">
+            <div className="dmg-container eco-grid">
+                {/* Summary: accent feature card */}
+                <div className="dmg-card dmg-card-accent eco-hero">
+                    <Notch corner="tl" className="dmg-notch-icon">
+                        <Asterisk size={28} />
+                    </Notch>
+                    <div className="dmg-num eco-total">{totalApps}</div>
+                    <div className="dmg-mono eco-hero-label">
+                        Aplikasi dalam
+                        <br />
+                        satu ekosistem
+                    </div>
+                    <Notch corner="br">dumeg.ecosystem</Notch>
+                </div>
+
+                {categories.map((cat, i) => (
+                    <div key={cat.title} className="dmg-card eco-card">
+                        <Notch corner="tr">{cat.apps.length} aplikasi</Notch>
+                        <div className="dmg-num eco-fraction">
+                            {i + 1}/{categories.length}
+                        </div>
+                        <div>
+                            <h3 className="dmg-mono eco-title">{cat.title}</h3>
+                            <p className="dmg-label eco-desc">{cat.desc}</p>
+                            <div className="dmg-pill-row">
                                 {cat.apps.map((app) => (
-                                    <div
-                                        key={app}
-                                        style={{
-                                            fontSize: 12,
-                                            fontWeight: 600,
-                                            color: '#ffffff',
-                                            background: 'rgba(255,255,255,0.08)',
-                                            border: '1px solid rgba(255,255,255,0.1)',
-                                            padding: '6px 12px',
-                                            borderRadius: 8,
-                                            display: 'flex',
-                                            alignItems: 'center',
-                                            gap: 8,
-                                        }}
-                                    >
-                                        <span style={{ width: 5, height: 5, borderRadius: 9999, background: '#a4beff' }} />
-                                        <span>{app}</span>
-                                    </div>
+                                    <span key={app} className="dmg-pill">
+                                        {app}
+                                    </span>
                                 ))}
                             </div>
                         </div>
-                    ))}
-                </div>
+                    </div>
+                ))}
             </div>
+
+            <style>{`
+                .eco-grid {
+                    display: grid;
+                    grid-template-columns: repeat(3, minmax(0, 1fr));
+                    gap: 12px;
+                }
+                .eco-hero {
+                    grid-column: span 2;
+                    display: flex;
+                    flex-direction: column;
+                    justify-content: space-between;
+                    min-height: 320px;
+                    padding: 28px;
+                }
+                .eco-total {
+                    align-self: flex-end;
+                    font-size: clamp(120px, 15vw, 220px);
+                }
+                .eco-hero-label {
+                    align-self: flex-end;
+                    text-align: right;
+                    font-size: clamp(16px, 1.8vw, 24px);
+                    line-height: 1.2;
+                    margin-top: 20px;
+                    padding-bottom: 40px;
+                }
+                .eco-card {
+                    display: flex;
+                    flex-direction: column;
+                    justify-content: space-between;
+                    gap: 32px;
+                    min-height: 320px;
+                }
+                .eco-fraction { font-size: clamp(44px, 4.4vw, 64px); }
+                .eco-title { font-size: clamp(16px, 1.5vw, 20px); line-height: 1.2; }
+                .eco-desc { margin: 8px 0 16px; }
+
+                @media (max-width: 1024px) {
+                    .eco-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+                }
+                @media (max-width: 640px) {
+                    .eco-grid { grid-template-columns: 1fr; }
+                    .eco-hero { grid-column: span 1; min-height: 280px; }
+                    .eco-card { min-height: 0; }
+                }
+            `}</style>
         </section>
     );
 }

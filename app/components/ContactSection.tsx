@@ -1,5 +1,6 @@
 'use client';
 import { useState } from 'react';
+import { Marks, Notch, SectionHead } from './DmgKit';
 
 export default function ContactSection() {
     const [name, setName] = useState('');
@@ -19,171 +20,184 @@ export default function ContactSection() {
     };
 
     return (
-        <section id="kontak" className="dmg-section">
+        <section id="kontak" className="dmg-section" aria-label="Kontak">
             <div className="dmg-container">
-                <div style={{
-                    display: 'grid',
-                    gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))',
-                    gap: 48,
-                    alignItems: 'center',
-                }}>
-                    {/* Left Column: Heading & Contact Buttons */}
-                    <div style={{ maxWidth: 520 }}>
-                        <span className="dmg-section-tag">KONTAK</span>
-                        <h2 className="dmg-section-title">
-                            Siap Mulai? Yuk, Diskusi Bisnis Bareng Kita
-                        </h2>
-                        <p style={{ marginTop: 20, fontSize: 15.5, lineHeight: 1.6, color: '#cbd8fc' }}>
+                <SectionHead
+                    index="05"
+                    label="Kontak"
+                    title={
+                        <>
+                            Siap mulai?
+                            <Marks />
+                            <br />
+                            Yuk, diskusi.
+                        </>
+                    }
+                />
+
+                <div className="ct-grid">
+                    {/* Direct contact */}
+                    <div className="dmg-card ct-direct">
+                        <Notch corner="tr">Kontak langsung</Notch>
+                        <p className="ct-lead">
                             Tinggalkan cara manual yang ribet. Hubungi kami sekarang dan temukan solusi tepat untuk logistik kamu.
                         </p>
 
-                        <div style={{ display: 'flex', flexWrap: 'wrap', gap: 14, marginTop: 32 }}>
-                            <a
-                                href="tel:+6282218788724"
-                                className="dmg-btn-pill-white"
-                                style={{ textDecoration: 'none' }}
-                            >
-                                <svg width="15" height="15" fill="none" stroke="#1432e3" viewBox="0 0 24 24">
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
-                                </svg>
-                                <span>+62 822-1878-8724</span>
+                        <div className="ct-lines">
+                            <a href="tel:+6282218788724" className="ct-line">
+                                <span className="dmg-label">Telepon:</span>
+                                <span className="dmg-mono ct-line-value">+62 822-1878-8724</span>
                             </a>
-
-                            <a
-                                href="mailto:dumegid@dumeg.com"
-                                style={{
-                                    display: 'inline-flex',
-                                    alignItems: 'center',
-                                    gap: 10,
-                                    padding: '11px 22px',
-                                    borderRadius: 9999,
-                                    border: '1px solid rgba(255,255,255,0.25)',
-                                    background: 'rgba(255,255,255,0.1)',
-                                    color: '#ffffff',
-                                    fontSize: 13.5,
-                                    fontWeight: 600,
-                                    textDecoration: 'none',
-                                    backdropFilter: 'blur(8px)',
-                                }}
-                            >
-                                <svg width="15" height="15" fill="none" stroke="#a4beff" viewBox="0 0 24 24">
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
-                                </svg>
-                                <span>dumegid@dumeg.com</span>
+                            <a href="mailto:dumegid@dumeg.com" className="ct-line">
+                                <span className="dmg-label">Email:</span>
+                                <span className="dmg-mono ct-line-value">dumegid@dumeg.com</span>
                             </a>
                         </div>
+
+                        <a href="tel:+6282218788724" className="dmg-btn">
+                            <span className="dmg-btn-label">Telepon sekarang</span>
+                            <span className="dmg-btn-icon" aria-hidden="true">
+                                <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
+                                </svg>
+                            </span>
+                        </a>
                     </div>
 
-                    {/* Right Column: White Form Card */}
-                    <div>
-                        <div
-                            className="dmg-card-white"
-                            style={{
-                                padding: '36px 32px',
-                                borderRadius: 28,
-                                maxWidth: 440,
-                                margin: '0 auto',
-                            }}
-                        >
-                            <h3 style={{
-                                fontSize: 21,
-                                fontWeight: 700,
-                                color: '#0d1428',
-                                marginBottom: 24,
-                                lineHeight: 1.3,
-                                letterSpacing: '-0.02em',
-                            }}>
-                                Mulai transformasi <span style={{ color: '#1432e3' }}>digital kamu hari ini</span>
-                            </h3>
+                    {/* Form: ink card */}
+                    <div className="dmg-card dmg-card-dark ct-form-card">
+                        <Notch corner="tr" style={{ width: '40%', minHeight: 56 }} />
 
-                            {sent ? (
-                                <div style={{
-                                    padding: 24,
-                                    borderRadius: 16,
-                                    background: '#ecfdf5',
-                                    border: '1px solid #a7f3d0',
-                                    textAlign: 'center',
-                                }}>
-                                    <div style={{
-                                        width: 40,
-                                        height: 40,
-                                        borderRadius: 9999,
-                                        background: '#10b981',
-                                        color: '#ffffff',
-                                        display: 'flex',
-                                        alignItems: 'center',
-                                        justifyContent: 'center',
-                                        margin: '0 auto 10px auto',
-                                    }}>
-                                        <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M5 13l4 4L19 7" />
-                                        </svg>
-                                    </div>
-                                    <h4 style={{ fontSize: 16, fontWeight: 700, color: '#065f46' }}>Pesan Terkirim!</h4>
-                                    <p style={{ fontSize: 12.5, color: '#047857', marginTop: 4 }}>
-                                        Tim teknis DUMEG akan segera menghubungi kamu.
-                                    </p>
-                                </div>
-                            ) : (
-                                <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
+                        <div className="ct-form-head">
+                            <span className="dmg-mono ct-k">Kirim ke:</span>
+                            <div className="dmg-mono ct-to">
+                                Tim
+                                <br />
+                                DUMEG.ID
+                            </div>
+                        </div>
+
+                        {sent ? (
+                            <div className="ct-sent dmg-fade-in" role="status">
+                                <span className="dmg-mono ct-k">Status:</span>
+                                <div className="dmg-mono ct-sent-title">[Pesan terkirim]</div>
+                                <p className="ct-sent-desc">Tim teknis DUMEG akan segera menghubungi kamu.</p>
+                            </div>
+                        ) : (
+                            <form onSubmit={handleSubmit} className="ct-form">
+                                <label className="ct-field">
+                                    <span className="dmg-mono ct-k">Nama:</span>
                                     <input
                                         type="text"
                                         required
-                                        placeholder="Nama kamu"
+                                        placeholder="[Nama kamu]"
                                         value={name}
                                         onChange={(e) => setName(e.target.value)}
-                                        style={{
-                                            width: '100%',
-                                            padding: '14px 20px',
-                                            borderRadius: 9999,
-                                            border: '1px solid transparent',
-                                            background: '#f1f4f9',
-                                            color: '#0d1428',
-                                            fontSize: 13.5,
-                                            outline: 'none',
-                                            fontFamily: 'inherit',
-                                        }}
                                     />
+                                </label>
+                                <label className="ct-field">
+                                    <span className="dmg-mono ct-k">Email:</span>
                                     <input
                                         type="email"
                                         required
-                                        placeholder="Email kamu"
+                                        placeholder="[Email kamu]"
                                         value={email}
                                         onChange={(e) => setEmail(e.target.value)}
-                                        style={{
-                                            width: '100%',
-                                            padding: '14px 20px',
-                                            borderRadius: 9999,
-                                            border: '1px solid transparent',
-                                            background: '#f1f4f9',
-                                            color: '#0d1428',
-                                            fontSize: 13.5,
-                                            outline: 'none',
-                                            fontFamily: 'inherit',
-                                        }}
                                     />
-                                    <button
-                                        type="submit"
-                                        className="dmg-btn-pill-black"
-                                        style={{
-                                            width: '100%',
-                                            padding: '14px 24px',
-                                            justifyContent: 'center',
-                                            fontSize: 14,
-                                            marginTop: 6,
-                                        }}
-                                    >
-                                        <svg width="15" height="15" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
+                                </label>
+                                <button type="submit" className="dmg-btn ct-submit">
+                                    <span className="dmg-btn-label">Kirim pesan</span>
+                                    <span className="dmg-btn-icon" aria-hidden="true">
+                                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                            <path d="M5 12h14M13 6l6 6-6 6" />
                                         </svg>
-                                        <span>Kirim pesan</span>
-                                    </button>
-                                </form>
-                            )}
-                        </div>
+                                    </span>
+                                </button>
+                            </form>
+                        )}
                     </div>
                 </div>
             </div>
+
+            <style>{`
+                .ct-grid {
+                    display: grid;
+                    grid-template-columns: minmax(0, 7fr) minmax(0, 5fr);
+                    gap: 12px;
+                }
+                .ct-direct {
+                    display: flex;
+                    flex-direction: column;
+                    justify-content: space-between;
+                    align-items: flex-start;
+                    gap: 32px;
+                    padding: 28px;
+                }
+                .ct-lead {
+                    font-size: 15px;
+                    line-height: 1.6;
+                    color: var(--dmg-ink-soft);
+                    max-width: 420px;
+                    padding-top: 24px;
+                }
+                .ct-lines { display: flex; flex-direction: column; gap: 24px; width: 100%; }
+                .ct-line {
+                    display: flex;
+                    flex-direction: column;
+                    gap: 8px;
+                    color: var(--dmg-ink);
+                    text-decoration: none;
+                }
+                .ct-line-value {
+                    font-size: clamp(18px, 2.6vw, 36px);
+                    letter-spacing: -0.04em;
+                    text-transform: none;
+                    transition: color 0.2s ease;
+                    overflow-wrap: anywhere;
+                }
+                .ct-line:hover .ct-line-value { color: var(--dmg-accent); }
+
+                .ct-form-card {
+                    display: flex;
+                    flex-direction: column;
+                    justify-content: space-between;
+                    gap: 40px;
+                    min-height: 480px;
+                    padding: 28px;
+                }
+                .ct-k { display: block; font-size: 10px; color: var(--dmg-on-dark-soft); }
+                .ct-to { font-size: clamp(22px, 2.2vw, 30px); line-height: 1.15; margin-top: 12px; }
+                .ct-form { display: flex; flex-direction: column; gap: 16px; }
+                .ct-field { display: flex; flex-direction: column; gap: 8px; }
+                .ct-field input {
+                    width: 100%;
+                    height: 48px;
+                    padding: 0 16px;
+                    border: none;
+                    border-radius: 12px;
+                    background: var(--dmg-dark-2);
+                    color: var(--dmg-on-dark);
+                    font-family: var(--font-mono);
+                    font-size: 12px;
+                    outline: none;
+                }
+                .ct-field input::placeholder { color: var(--dmg-on-dark-soft); }
+                .ct-field input:focus-visible { outline: 2px solid var(--dmg-accent); outline-offset: 0; }
+                .ct-submit { margin-top: 8px; align-self: flex-start; }
+                .ct-submit .dmg-btn-label { background: var(--dmg-surface); color: var(--dmg-ink); }
+                .ct-submit:hover .dmg-btn-label { background: var(--dmg-muted); }
+                .ct-sent-title { font-size: 20px; color: var(--dmg-accent); margin-top: 12px; }
+                .ct-sent-desc { font-size: 14px; color: var(--dmg-on-dark-soft); margin-top: 8px; }
+
+                @media (max-width: 900px) {
+                    .ct-grid { grid-template-columns: 1fr; }
+                    .ct-form-card { min-height: 0; }
+                }
+                @media (max-width: 520px) {
+                    .ct-direct, .ct-form-card { padding: 20px; }
+                    .ct-direct .dmg-notch { display: none; }
+                }
+            `}</style>
         </section>
     );
 }

@@ -2,7 +2,7 @@ import Navbar from './components/Navbar';
 import HeroSection from './components/HeroSection';
 import VisionMissionSection from './components/VisionMissionSection';
 import ServicesSection from './components/ServicesSection';
-import AssociationSection from './components/AssociationSection';
+import SkyLaunchTransition from './components/SkyLaunchTransition';
 import TeamSection from './components/TeamSection';
 import TestimonialAndPartners from './components/TestimonialAndPartners';
 import EcosystemGrid from './components/EcosystemGrid';
@@ -14,25 +14,8 @@ export default function Home() {
         <main
             style={{
                 minHeight: '100vh',
-                background: `linear-gradient(
-                    180deg,
-                    #3c4eef 0%,
-                    #2739da 10%,
-                    #1b2ab9 20%,
-                    #131d92 30%,
-                    #0c1465 40%,
-                    #080e3a 52%,
-                    #070e3f 58%,
-                    #0a124d 65%,
-                    #162070 70%,
-                    #2937a3 75%,
-                    #3c4ed6 80%,
-                    #8b97e7 85%,
-                    #d3d9f6 90%,
-                    #fafbfd 95%,
-                    #ffffff 100%
-                )`,
-                color: '#ffffff',
+                background: 'var(--dmg-bg)',
+                color: 'var(--dmg-ink)',
                 overflowX: 'clip',
                 fontFamily: "'Helvetica', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif",
             }}
@@ -49,8 +32,10 @@ export default function Home() {
             {/* Services / Layanan Carousel */}
             <ServicesSection />
 
-            {/* Portfolio Sistem Asosiasi (APTMI, GPEI, ATTI, DEPALINDO, APBMI Kaltim) */}
-            <AssociationSection />
+            {/* Ekosistem 3D (scroll-driven): 9 cahaya (Asosiasi, Data Center, Layanan Publik)
+                lalu masuk ke pesawat: monitor HR, Utilitas, Finance, Bisnis. Menggantikan
+                section Portfolio Sistem Asosiasi; komponen lamanya tetap ada di components/. */}
+            <SkyLaunchTransition />
 
             {/* Team / Engineer Logistik */}
             <TeamSection />
