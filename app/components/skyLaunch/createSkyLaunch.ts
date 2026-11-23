@@ -55,17 +55,18 @@ const lerpPose = (a: Pose, b: Pose, t: number, out: Pose, arc = 0) => {
 };
 
 // ------------------------------------------------------------------ scene constants
-const PAD_Y = 0.9; // vessel sits slightly above the cloud sea
+const PAD_Y = 1.3; // rocket pods rest on the cloud tops, fins stay readable
 const SUN_DIR = new THREE.Vector3(0.493, 0.531, -0.691).normalize();
-const INTRO = pose(0, 6.4, 33, 0, 4.4, 0);
-const HERO = pose(0, 4.1, 23, 0, 5.0, 0);
+const INTRO = pose(0, 6.8, 35, 0, 5.0, 0);
+const HERO = pose(0, 4.4, 25, 0, 5.6, 0);
 const FRONT = pose(0, PAD_Y + 4.85, 8.5, 0, PAD_Y + 4.85, 0);
-const EXIT = pose(0, 4.6, 24, 0, 5.0, 0);
+const EXIT = pose(0, 4.9, 26, 0, 5.6, 0);
 
 const STATION_W = 16; // world width of a station monitor
-const CABIN_Y = 4.85; // ship-local height of the cabin monitors
-const CABIN_R = 0.98; // ship-local radius of the cabin monitors
-const CABIN_W = 1.15;
+const CABIN_Y = 4.85; // ship-local height of the cabin monitors (= porthole centre in the GLB)
+const CABIN_R = 0.61; // ship-local radius of the cabin monitors; hull cabin wall is at 0.74
+const CABIN_W = 0.71;
+const CABIN_MAX_D = 1.085; // camera stays inside the hull and in front of the opposite monitor (< 2 * CABIN_R)
 const MON_RATIO = 0.625; // 16:10
 const MON_SAG = 0.05; // matches the GLB template
 const bayAngle = (b: number) => Math.PI - (b * Math.PI) / 2; // HR at -Z, then clockwise
@@ -414,7 +415,7 @@ export function createSkyLaunch(canvas: HTMLCanvasElement, opts: SkyLaunchOption
             engineSprite = root.getObjectByName('EngineGlowSprite') ?? null;
             template = root.getObjectByName('MonitorTemplate') ?? null;
             template?.removeFromParent();
-            ['Ship_Core', 'Ship_Struts'].forEach((n) => {
+            ['Ship_Glass'].forEach((n) => {
                 const o = root.getObjectByName(n);
                 if (o) cabinHide.push(o);
             });
@@ -501,6 +502,7 @@ export function createSkyLaunch(canvas: HTMLCanvasElement, opts: SkyLaunchOption
                     if (mat.name === 'LightTrail') trailMap = mat.map;
                 }
                 if (mat.name === 'Ship_Pearl') (mat as unknown as THREE.MeshPhysicalMaterial).envMapIntensity = 0.9;
+                if (mat.name === 'Ship_Aluminium') (mat as unknown as THREE.MeshStandardMaterial).envMapIntensity = 1.15;
             });
 
             // light stations + their monitors
@@ -588,8 +590,8 @@ export function createSkyLaunch(canvas: HTMLCanvasElement, opts: SkyLaunchOption
         const dx = Math.sin(angle);
         const dz = Math.cos(angle);
         // stay inside the hull: on portrait screens the monitor is cropped at the sides instead
-        const d = Math.min(fitDistance(CABIN_W * 1.08, CABIN_W * MON_RATIO * 1.18 + 0.2), 1.75);
-        out.target.set(dx * CABIN_R, y - 0.1, dz * CABIN_R);
+        const d = Math.min(fitDistance(CABIN_W * 1.08, CABIN_W * (MON_RATIO * 1.18 + 0.174)), CABIN_MAX_D);
+        out.target.set(dx * CABIN_R, y - CABIN_W * 0.087, dz * CABIN_R);
         out.pos.set(dx * (CABIN_R - d), y, dz * (CABIN_R - d));
         return out;
     };
@@ -693,7 +695,7 @@ export function createSkyLaunch(canvas: HTMLCanvasElement, opts: SkyLaunchOption
         camera.lookAt(cam.target);
         if (sky) sky.position.copy(camera.position);
 
-        // cabin: hide the spindle/struts while the camera is in (or entering) the hull
+        // cabin: hide the porthole glass while the camera is in (or entering) the hull
         const inside =
             (seg.kind === 'enter' && s > 0.45) ||
             seg.kind === 'app' ||

@@ -1,12 +1,6 @@
 @import "tailwindcss";
 
-@font-face {
-    font-family: 'Helvetica';
-    src: url('/fonts/helvetica/helvetica-light-587ebe5a59211.ttf') format('truetype');
-    font-weight: 300;
-    font-style: normal;
-    font-display: swap;
-}
+/* Helvetica (local files) stands in for the reference's Helvetica Now */
 @font-face {
     font-family: 'Helvetica';
     src: url('/fonts/helvetica/Helvetica.ttf') format('truetype');
@@ -22,763 +16,274 @@
     font-display: swap;
 }
 
-:root {
-    --cobalt-top: #3c4eef;
-    --navy-deep: #080e3a;
-    --cobalt-bottom-glow: #3c4ed6;
-    --font-main: 'Helvetica', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-    --font-display: var(--font-bebas), 'Bebas Neue', 'Impact', -apple-system, sans-serif;
-    --font-mono: var(--font-martian), 'Martian Mono', ui-monospace, 'SFMono-Regular', Menlo, monospace;
+/* Design tokens -> Tailwind utilities (bg-paper, text-ink, font-script, ...), values from the reference */
+@theme {
+    --color-paper: #f5f5f5;
+    --color-paper-2: #ececec;
+    --color-ink: #434343;
+    --color-ink-strong: #1e1e1e;
+    --color-muted: #5e5e5e;
+    --color-faint: #b9b9b9;
+    --color-line: rgb(48 48 48 / 0.1);
+    --color-rule: rgb(0 0 0 / 0.2);
+    --color-flag-red: #e0242c;
 
-    /* Post-hero palette */
-    --dmg-bg: #d5deef;
-    --dmg-surface: #f0f3fa;
-    --dmg-muted: #b1c9ef;
-    --dmg-ink: #0d0e10;
-    --dmg-ink-soft: #395886;
-    --dmg-ink-mute: #8d9198;
-    --dmg-dark: #0d0e10;
-    --dmg-dark-2: #24262b;
-    --dmg-on-dark: #f0f3fa;
-    --dmg-on-dark-soft: #9a9ea6;
-    --dmg-accent: #628ecb;
-    --dmg-accent-hover: #8aaee0;
-    --dmg-radius: 24px;
+    --font-sans: 'Helvetica', 'Helvetica Neue', Arial, sans-serif;
+    --font-script: var(--font-ballet), cursive;
+    --font-editorial: var(--font-instrument), 'Times New Roman', serif;
+    --font-display: var(--font-bodoni), 'Didot', serif;
+    --font-mono: var(--font-sometype), ui-monospace, monospace;
 
-    /* Page width shared by navbar, sections and the vision bento */
-    --dmg-max: 1760px;
-    --dmg-gutter: clamp(16px, 3.2vw, 56px);
+    --tracking-tight: -0.025em;
+    --tracking-tighter: -0.05em;
 }
 
-*, *::before, *::after {
+:root {
+    --gutter: 24px;
+}
+@media (min-width: 768px) {
+    :root {
+        --gutter: 48px;
+    }
+}
+
+/* element resets in the base layer, so component classes and utilities win over them */
+@layer base {
+*,
+*::before,
+*::after {
     box-sizing: border-box;
-    margin: 0;
-    padding: 0;
 }
 
 html {
-    scroll-behavior: smooth;
-    font-family: var(--font-main);
+    background: var(--color-paper);
+    color: var(--color-ink);
+    font-family: var(--font-sans);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
 }
 
 body {
-    font-family: var(--font-main);
-    background: var(--dmg-bg);
-    color: var(--dmg-ink);
-    min-height: 100vh;
-    overflow-x: hidden;
-    -webkit-font-smoothing: antialiased;
-    -moz-osx-font-smoothing: grayscale;
+    margin: 0;
+    background: var(--color-paper);
+    color: var(--color-ink);
+    overflow-x: clip;
 }
 
-/* Custom Scrollbar */
-::-webkit-scrollbar {
-    width: 6px;
-    height: 6px;
-}
-::-webkit-scrollbar-track {
-    background: var(--dmg-bg);
-}
-::-webkit-scrollbar-thumb {
-    background: var(--dmg-dark);
-    border-radius: 9999px;
+::selection {
+    background: var(--color-ink-strong);
+    color: var(--color-paper);
 }
 
-/* Hide scrollbar utility */
-.no-scrollbar::-webkit-scrollbar {
-    display: none;
-}
-.no-scrollbar {
-    -ms-overflow-style: none;
-    scrollbar-width: none;
-}
-
-/* Base Container */
-.dmg-container {
-    width: 100%;
-    max-width: var(--dmg-max);
-    margin: 0 auto;
-    padding-left: var(--dmg-gutter);
-    padding-right: var(--dmg-gutter);
-}
-
-/* Floating Glassmorphism Navbar (Matching Reference) */
-.dmg-header-float-wrapper {
-    position: fixed;
-    top: 18px;
-    left: 0;
-    right: 0;
-    z-index: 100;
-    display: flex;
-    justify-content: center;
-    padding: 0 var(--dmg-gutter);
-    pointer-events: none;
-}
-
-.dmg-header-glass-bar {
-    pointer-events: auto;
-    width: 100%;
-    max-width: calc(var(--dmg-max) - 2 * var(--dmg-gutter));
-    height: 56px;
-    background: rgba(255, 255, 255, 0.14);
-    backdrop-filter: blur(24px) saturate(180%);
-    -webkit-backdrop-filter: blur(24px) saturate(180%);
-    border: 1px solid rgba(255, 255, 255, 0.28);
-    border-radius: 14px;
-    box-shadow: 0 12px 32px rgba(0, 0, 0, 0.12), inset 0 1px 0 rgba(255, 255, 255, 0.4);
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 0 14px 0 22px;
-    transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
-}
-
-.dmg-header-glass-bar:hover {
-    background: rgba(255, 255, 255, 0.18);
-    border-color: rgba(255, 255, 255, 0.38);
-    box-shadow: 0 16px 40px rgba(0, 0, 0, 0.16), inset 0 1px 0 rgba(255, 255, 255, 0.5);
-}
-
-.dmg-header-glass-bar.is-solid {
-    background: var(--dmg-dark);
-    border-color: transparent;
-    box-shadow: none;
-    backdrop-filter: none;
-    -webkit-backdrop-filter: none;
-}
-
-.dmg-header-glass-bar.is-solid .dmg-logo-dot {
-    background: var(--dmg-accent);
-}
-
-.dmg-nav-brand {
-    display: flex;
-    align-items: center;
-    gap: 10px;
+a {
+    color: inherit;
     text-decoration: none;
 }
 
-.dmg-logo-icon {
-    width: 22px;
-    height: 22px;
-    background: #ffffff;
-    border-radius: 6px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
+img {
+    display: block;
+    max-width: 100%;
+}
 }
 
-.dmg-logo-dot {
+/* Lenis */
+html.lenis,
+html.lenis body {
+    height: auto;
+}
+.lenis.lenis-smooth {
+    scroll-behavior: auto !important;
+}
+.lenis.lenis-stopped {
+    overflow: hidden;
+}
+
+/* shared classes live in the components layer so Tailwind utilities can override them */
+@layer components {
+/* ------------------------------------------------------------------ shared type */
+/* "+ ( Label )": 14px, a 10px cross in front */
+.t-label {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 14px;
+    line-height: 20px;
+    letter-spacing: -0.025em;
+    color: var(--color-ink);
+}
+.t-label::before {
+    content: '';
     width: 10px;
     height: 10px;
-    background: #183bf6;
-    border-radius: 2.5px;
+    flex: none;
+    background:
+        linear-gradient(currentColor, currentColor) center / 100% 1px no-repeat,
+        linear-gradient(currentColor, currentColor) center / 1px 100% no-repeat;
 }
 
-.dmg-logo-text {
-    font-size: 20px;
-    font-weight: 700;
-    color: #ffffff;
-    letter-spacing: -0.02em;
-}
-
-.dmg-nav-links {
-    display: flex;
-    align-items: center;
-    gap: 36px;
-}
-
-@media (max-width: 900px) {
-    .dmg-nav-links {
-        display: none;
-    }
-}
-
-.dmg-nav-link {
-    color: rgba(255, 255, 255, 0.9);
-    font-size: 13.5px;
-    font-weight: 500;
-    text-decoration: none;
-    letter-spacing: 0.01em;
-    transition: color 0.2s ease, opacity 0.2s ease;
-}
-
-.dmg-nav-link:hover {
-    color: #ffffff;
-}
-
-.dmg-header-cta-btn {
-    display: inline-flex;
-    align-items: center;
-    gap: 10px;
-    background: #ffffff;
-    color: #0f172a;
-    font-size: 13px;
-    font-weight: 600;
-    padding: 6px 8px 6px 16px;
-    border-radius: 9px;
-    text-decoration: none;
-    transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
-}
-
-.dmg-header-cta-btn:hover {
-    background: #f8fafc;
-    transform: translateY(-1px);
-    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.14);
-}
-
-.dmg-cta-badge {
-    width: 26px;
-    height: 26px;
-    background: var(--dmg-accent);
-    color: var(--dmg-ink);
-    border-radius: 6px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-
-/* Reference Hero Section (Play Strong) */
-.dmg-hero-ref {
-    position: relative;
-    width: 100%;
-    height: 100vh;
-    height: 100dvh;
-    min-height: 680px;
-    overflow: hidden;
-    background: #2587e8;
-}
-
-.dmg-hero-bg-layer {
-    position: absolute;
-    inset: 0;
-    width: 100%;
-    height: 100%;
-    z-index: 1;
-}
-
-.dmg-hero-text-layer {
-    position: absolute;
-    inset: 0;
-    width: 100%;
-    height: 100%;
-    z-index: 2;
-    pointer-events: auto;
-}
-
-.dmg-hero-giant-title {
-    font-family: var(--font-display);
-    font-size: clamp(76px, 16vw, 240px);
-    font-weight: 900;
-    color: #ffffff;
-    letter-spacing: 0.02em;
-    line-height: 0.84;
-    text-transform: uppercase;
-    text-align: center;
-    white-space: nowrap;
-    user-select: none;
-    text-shadow: 0 4px 30px rgba(0, 0, 0, 0.15);
-    transition: opacity 0.4s ease, transform 0.4s ease;
-}
-
-.dmg-hero-cutout-layer {
-    position: absolute;
-    inset: 0;
-    width: 100%;
-    height: 100%;
-    z-index: 3;
-    pointer-events: none;
-    display: flex;
-    justify-content: center;
-    align-items: flex-end;
-}
-
-.dmg-hero-model-wrap {
-    position: relative;
-    width: 100%;
-    max-width: 1720px;
-    height: 100%;
-    transform: translateX(-3%) scale(1.24);
-    transform-origin: center bottom;
-}
-
-.dmg-hero-bottom-transition {
-    display: none;
-}
-
-.dmg-hero-card-layer {
-    position: absolute;
-    bottom: clamp(32px, 6vh, 64px);
-    left: clamp(20px, 5vw, 72px);
-    z-index: 10;
-    max-width: 380px;
-    width: calc(100% - 40px);
-}
-
-.dmg-hero-floating-card {
-    background: rgba(12, 28, 68, 0.48);
-    backdrop-filter: blur(28px) saturate(190%);
-    -webkit-backdrop-filter: blur(28px) saturate(190%);
-    border: 1px solid rgba(255, 255, 255, 0.28);
-    border-radius: 20px;
-    padding: 22px 26px;
-    box-shadow: 0 24px 50px rgba(0, 0, 0, 0.22), inset 0 1px 0 rgba(255, 255, 255, 0.35);
-    color: #ffffff;
-    transition: transform 0.3s ease, box-shadow 0.3s ease;
-}
-
-.dmg-hero-floating-card:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 28px 56px rgba(0, 0, 0, 0.28), inset 0 1px 0 rgba(255, 255, 255, 0.45);
-}
-
-.dmg-hero-tag {
-    font-size: 13.5px;
-    font-weight: 500;
-    letter-spacing: 0.04em;
-    color: rgba(255, 255, 255, 0.9);
-    margin-bottom: 8px;
-}
-
-.dmg-hero-card-heading {
-    font-size: clamp(20px, 1.8vw, 25px);
-    font-weight: 700;
-    line-height: 1.25;
-    color: #ffffff;
-    letter-spacing: -0.015em;
-    margin-bottom: 10px;
-}
-
-.dmg-hero-card-desc {
-    font-size: 13.5px;
-    line-height: 1.55;
-    color: rgba(255, 255, 255, 0.88);
-    margin-bottom: 4px;
-}
-
-.dmg-hero-nav-row {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    margin-top: 18px;
-}
-
-.dmg-hero-nav-btn {
-    width: 44px;
-    height: 44px;
-    background: #ffffff;
-    color: #111827;
-    border-radius: 10px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    border: none;
-    cursor: pointer;
-    box-shadow: 0 8px 18px rgba(0, 0, 0, 0.12);
-    transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
-}
-
-.dmg-hero-nav-btn:hover {
-    transform: translateY(-2px);
-    background: #f8fafc;
-    box-shadow: 0 12px 24px rgba(0, 0, 0, 0.2);
-}
-
-.dmg-hero-nav-btn:active {
-    transform: scale(0.94);
-}
-
-.dmg-hero-indicator {
-    font-size: 12px;
-    font-weight: 600;
-    letter-spacing: 0.08em;
-    color: rgba(255, 255, 255, 0.85);
-    margin-left: 8px;
-}
-
-
-/* ==========================================================================
-   Reference system (sections after hero)
-   Light grey canvas, off-white / ink / accent cards, notched corners,
-   mono labels and oversized numerals.
-   ========================================================================== */
-
-.dmg-section {
-    padding-top: 48px;
-    padding-bottom: 48px;
-    color: var(--dmg-ink);
-}
-
-.dmg-mono {
-    font-family: var(--font-mono);
-    text-transform: uppercase;
-    letter-spacing: 0.01em;
-}
-
-.dmg-label {
-    font-family: var(--font-mono);
-    font-size: 10.5px;
-    font-weight: 500;
-    letter-spacing: 0.04em;
-    text-transform: uppercase;
-    color: var(--dmg-ink-soft);
-}
-
-.dmg-display {
-    font-family: var(--font-main);
-    font-size: clamp(40px, 5.6vw, 80px);
+/* lead paragraph: 24px / 36px, light, leading-none */
+.t-lead {
+    font-size: 24px;
     font-weight: 400;
-    line-height: 0.94;
-    letter-spacing: -0.045em;
-    color: var(--dmg-ink);
+    line-height: 1;
+    letter-spacing: -0.025em;
+    color: var(--color-ink);
 }
-
-.dmg-num {
-    font-family: var(--font-mono);
-    font-weight: 300;
-    line-height: 0.86;
-    letter-spacing: -0.06em;
-}
-
-/* Inline headline marks */
-.dmg-halfdisc {
-    display: inline-block;
-    width: 0.72em;
-    height: 0.36em;
-    border-radius: 0.36em 0.36em 0 0;
-    background: currentColor;
-    vertical-align: 0.12em;
-    margin: 0 0.08em;
-}
-
-.dmg-asterisk {
-    display: inline-block;
-    vertical-align: -0.02em;
-}
-
-.dmg-display .dmg-asterisk {
-    width: 0.62em;
-    height: 0.62em;
-    margin-left: 0.12em;
-}
-
-/* Section header */
-.dmg-sec-head {
-    margin-bottom: 32px;
-}
-
-.dmg-sec-meta {
-    display: flex;
-    gap: 16px;
-    font-family: var(--font-mono);
-    font-size: 10.5px;
-    letter-spacing: 0.04em;
-    text-transform: uppercase;
-    color: var(--dmg-ink-soft);
-    margin-bottom: 20px;
-}
-
-.dmg-sec-meta-end {
-    margin-left: auto;
-}
-
-.dmg-sec-row {
-    display: flex;
-    align-items: flex-end;
-    justify-content: space-between;
-    gap: 32px;
-}
-
-.dmg-sec-aside {
-    max-width: 360px;
-    display: flex;
-    flex-direction: column;
-    gap: 16px;
-    padding-bottom: 8px;
-}
-
-.dmg-sec-aside p {
-    font-family: var(--font-mono);
-    font-size: 11px;
-    line-height: 1.7;
-    text-transform: uppercase;
-    color: var(--dmg-ink);
-}
-
-@media (max-width: 900px) {
-    .dmg-sec-row {
-        flex-direction: column;
-        align-items: flex-start;
+@media (min-width: 768px) {
+    .t-lead {
+        font-size: 36px;
     }
 }
 
-/* Cards */
-.dmg-card {
-    --notch-bg: var(--dmg-bg);
-    position: relative;
-    border-radius: var(--dmg-radius);
-    background: var(--dmg-surface);
-    color: var(--dmg-ink);
-    padding: 24px;
-    min-width: 0;
+.t-script {
+    font-family: var(--font-script);
+    font-weight: 400;
+    letter-spacing: 0;
 }
 
-.dmg-card-dark {
-    background: var(--dmg-dark);
-    color: var(--dmg-on-dark);
+.t-editorial {
+    font-family: var(--font-editorial);
 }
 
-.dmg-card-accent {
-    background: var(--dmg-accent);
-    color: var(--dmg-ink);
+.hairline {
+    height: 1px;
+    background: var(--color-line);
 }
 
-.dmg-card-photo {
-    overflow: hidden;
-    padding: 0;
-    background: var(--dmg-dark);
-}
-
-.dmg-panel {
-    --notch-bg: var(--dmg-bg);
-    position: relative;
-    border-radius: 32px;
-    background: var(--dmg-surface);
-    color: var(--dmg-ink);
-    padding: 24px;
-}
-
-/* Notched corner tab: the tab takes the canvas color, pseudo elements draw
-   the two inverted rounded joins back into the card. */
-.dmg-notch {
-    --notch-r: 20px;
-    position: absolute;
-    z-index: 2;
+/* dark rectangular button ("LEARN MORE ->"): px-8 py-2, 12px uppercase */
+.btn-ink {
     display: inline-flex;
+    width: fit-content;
     align-items: center;
+    justify-content: center;
     gap: 8px;
-    min-height: 40px;
-    padding: 8px 20px;
-    background: var(--notch-bg);
-    color: var(--dmg-ink);
-    font-family: var(--font-mono);
-    font-size: 10.5px;
-    letter-spacing: 0.04em;
+    padding: 8px 32px;
+    background: var(--color-ink);
+    color: #fff;
+    font-size: 12px;
+    line-height: 16px;
+    letter-spacing: -0.025em;
     text-transform: uppercase;
-    white-space: nowrap;
+    transition: background-color 0.3s cubic-bezier(0.2, 0, 0, 1);
+}
+.btn-ink:hover {
+    background: var(--color-ink-strong);
+}
+.btn-ink .btn-arrow {
+    transition: transform 0.3s ease-out;
+}
+.btn-ink:hover .btn-arrow {
+    transform: translateX(4px);
 }
 
-.dmg-notch::before,
-.dmg-notch::after {
-    content: "";
-    position: absolute;
-    width: var(--notch-r);
-    height: var(--notch-r);
-    pointer-events: none;
-}
-
-.dmg-notch-tr {
-    top: 0;
-    right: 0;
-    border-bottom-left-radius: var(--notch-r);
-}
-.dmg-notch-tr::before { top: 0; right: 100%; }
-.dmg-notch-tr::after { top: 100%; right: 0; }
-.dmg-notch-tr::before,
-.dmg-notch-tr::after {
-    background: radial-gradient(circle at 0 100%, transparent calc(var(--notch-r) - 0.5px), var(--notch-bg) var(--notch-r));
-}
-
-.dmg-notch-tl {
-    top: 0;
-    left: 0;
-    border-bottom-right-radius: var(--notch-r);
-}
-.dmg-notch-tl::before { top: 0; left: 100%; }
-.dmg-notch-tl::after { top: 100%; left: 0; }
-.dmg-notch-tl::before,
-.dmg-notch-tl::after {
-    background: radial-gradient(circle at 100% 100%, transparent calc(var(--notch-r) - 0.5px), var(--notch-bg) var(--notch-r));
-}
-
-.dmg-notch-br {
-    bottom: 0;
-    right: 0;
-    border-top-left-radius: var(--notch-r);
-}
-.dmg-notch-br::before { bottom: 0; right: 100%; }
-.dmg-notch-br::after { bottom: 100%; right: 0; }
-.dmg-notch-br::before,
-.dmg-notch-br::after {
-    background: radial-gradient(circle at 0 0, transparent calc(var(--notch-r) - 0.5px), var(--notch-bg) var(--notch-r));
-}
-
-.dmg-notch-bl {
-    bottom: 0;
-    left: 0;
-    border-top-right-radius: var(--notch-r);
-}
-.dmg-notch-bl::before { bottom: 0; left: 100%; }
-.dmg-notch-bl::after { bottom: 100%; left: 0; }
-.dmg-notch-bl::before,
-.dmg-notch-bl::after {
-    background: radial-gradient(circle at 100% 0, transparent calc(var(--notch-r) - 0.5px), var(--notch-bg) var(--notch-r));
-}
-
-.dmg-notch-icon {
-    padding: 8px 12px;
-    min-height: 48px;
-}
-
-/* Pills */
-.dmg-pill {
+/* mono uppercase button of the contact flow: px-4 py-2, 12/14px Sometype Mono */
+.btn-mono {
     display: inline-flex;
     align-items: center;
+    justify-content: center;
     gap: 8px;
     padding: 8px 16px;
-    border-radius: 9999px;
-    background: var(--dmg-muted);
-    color: var(--dmg-ink);
+    background: var(--color-ink);
+    color: #fff;
     font-family: var(--font-mono);
-    font-size: 10px;
-    letter-spacing: 0.03em;
+    font-size: 12px;
+    line-height: 20px;
+    letter-spacing: -0.025em;
     text-transform: uppercase;
-    white-space: nowrap;
+    transition: background-color 0.3s cubic-bezier(0.2, 0, 0, 1), transform 0.3s cubic-bezier(0.2, 0, 0, 1);
+}
+@media (min-width: 768px) {
+    .btn-mono {
+        font-size: 14px;
+    }
+}
+.btn-mono:hover {
+    background: var(--color-ink-strong);
+}
+.btn-mono:active {
+    transform: scale(0.96);
 }
 
-.dmg-pill-dark {
-    background: var(--dmg-dark);
-    color: var(--dmg-on-dark);
+/* contact stage: the circle and rules draw themselves in */
+.contact-circle {
+    stroke-dashoffset: 0;
+    animation: contact-fade 1.6s ease-out both;
+}
+.contact-line {
+    stroke-dasharray: 1080;
+    stroke-dashoffset: 1080;
+    animation: contact-draw 1.6s cubic-bezier(0.76, 0, 0.24, 1) 0.2s forwards;
+}
+@keyframes contact-draw {
+    to { stroke-dashoffset: 0; }
+}
+@keyframes contact-fade {
+    from { opacity: 0; transform: scale(0.96); transform-origin: center; }
+    to { opacity: 0.9; transform: scale(1); }
 }
 
-.dmg-pill-ghost {
-    background: var(--dmg-dark-2);
-    color: var(--dmg-on-dark);
+/* a load hanging from a crane: slow pendulum around the rope's top */
+.hang-swing {
+    animation: hang-swing 6s ease-in-out infinite;
+}
+@keyframes hang-swing {
+    0%, 100% { transform: rotate(-2.2deg); }
+    50% { transform: rotate(2.2deg); }
+}
+@media (prefers-reduced-motion: reduce) {
+    .hang-swing {
+        animation: none;
+    }
 }
 
-.dmg-pill-row {
+/* a truck crossing its road strip (100cqw = the strip's width), with a little engine shake */
+.truck-drive {
+    animation: truck-drive 11s linear infinite;
+}
+@keyframes truck-drive {
+    0% { transform: translateX(-100%); }
+    82%, 100% { transform: translateX(100cqw); }
+}
+.truck-bob {
+    animation: truck-bob 0.42s ease-in-out infinite alternate;
+}
+@keyframes truck-bob {
+    from { transform: translateY(0); }
+    to { transform: translateY(-1.5px); }
+}
+@media (prefers-reduced-motion: reduce) {
+    .truck-drive {
+        animation: none;
+        transform: translateX(calc(50cqw - 50%));
+    }
+    .truck-bob {
+        animation: none;
+    }
+}
+
+/* chamfered corners used by the header buttons and menu panels */
+.chamfer {
+    clip-path: polygon(8px 0, calc(100% - 8px) 0, 100% 8px, 100% calc(100% - 8px), calc(100% - 8px) 100%, 8px 100%, 0 calc(100% - 8px), 0 8px);
+}
+
+/* infinite marquee track (two copies side by side, CSS animated) */
+.marquee {
     display: flex;
-    flex-wrap: wrap;
-    gap: 8px;
+    width: max-content;
+    animation: marquee var(--marquee-speed, 30s) linear infinite;
 }
-
-/* Buttons: pill label + attached circle (reference "EXPLORE MORE") */
-.dmg-btn {
-    display: inline-flex;
-    align-items: center;
-    gap: 4px;
-    text-decoration: none;
-    border: none;
-    background: none;
-    padding: 0;
-    cursor: pointer;
-    color: inherit;
+.marquee[data-reverse='true'] {
+    animation-direction: reverse;
 }
-
-.dmg-btn-label {
-    display: inline-flex;
-    align-items: center;
-    height: 44px;
-    padding: 0 20px;
-    border-radius: 9999px;
-    background: var(--dmg-dark);
-    color: var(--dmg-on-dark);
-    font-family: var(--font-mono);
-    font-size: 10.5px;
-    letter-spacing: 0.04em;
-    text-transform: uppercase;
-    transition: background 0.2s ease;
-}
-
-.dmg-btn-icon {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    width: 44px;
-    height: 44px;
-    border-radius: 9999px;
-    background: var(--dmg-accent);
-    color: var(--dmg-ink);
-    transition: background 0.2s ease;
-}
-
-.dmg-btn:hover .dmg-btn-label {
-    background: var(--dmg-dark-2);
-}
-
-.dmg-btn:hover .dmg-btn-icon {
-    background: var(--dmg-accent-hover);
-}
-
-.dmg-btn-light .dmg-btn-label {
-    background: var(--dmg-surface);
-    color: var(--dmg-ink);
-}
-
-.dmg-btn-light:hover .dmg-btn-label {
-    background: var(--dmg-muted);
-}
-
-.dmg-btn:focus-visible {
-    outline: none;
-}
-
-.dmg-btn:focus-visible .dmg-btn-label,
-.dmg-btn:focus-visible .dmg-btn-icon {
-    outline: 2px solid var(--dmg-accent);
-    outline-offset: 2px;
-}
-
-.dmg-circle-btn {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    flex: none;
-    width: 48px;
-    height: 48px;
-    border-radius: 9999px;
-    border: none;
-    cursor: pointer;
-    transition: background 0.2s ease, color 0.2s ease;
-}
-
-.dmg-circle-btn-dark {
-    background: var(--dmg-dark);
-    color: var(--dmg-on-dark);
-}
-
-.dmg-circle-btn-dark:hover {
-    background: var(--dmg-accent);
-    color: var(--dmg-ink);
-}
-
-.dmg-circle-btn-light {
-    background: var(--dmg-surface);
-    color: var(--dmg-ink);
-}
-
-.dmg-circle-btn-light:hover {
-    background: var(--dmg-accent);
-}
-
-.dmg-circle-btn:focus-visible {
-    outline: 2px solid var(--dmg-accent);
-    outline-offset: 2px;
-}
-
-/* State-change fade for swapped content */
-@keyframes dmg-fade-in {
-    from { opacity: 0; transform: translateY(8px); }
-    to { opacity: 1; transform: none; }
-}
-
-.dmg-fade-in {
-    animation: dmg-fade-in 0.45s cubic-bezier(0.16, 1, 0.3, 1) both;
+@keyframes marquee {
+    from { transform: translate3d(0, 0, 0); }
+    to { transform: translate3d(-50%, 0, 0); }
 }
 
 @media (prefers-reduced-motion: reduce) {
-    .dmg-fade-in {
+    .marquee {
         animation: none;
     }
+}
 }

@@ -1,9 +1,10 @@
-"""Builds dumeg-skyship.glb: organic launch vessel + cloud sea + sky dome + light trails.
+"""Builds dumeg-skyship.glb: retro silver rocket + cloud sea + sky dome + light trails.
 
 Units are metres, +Y up, the hero camera looks down -Z.  Node names are
 the contract with the web runtime (SkyLaunch scene):
-  SkyShip            root of the vessel (origin = between the feet)
-    Ship_Shell / Ship_ShellInner / Ship_Core / Ship_Struts / Ship_Legs / Ship_Feet / Ship_Nozzle / Ship_EngineGlow
+  SkyShip            root of the vessel (origin = between the pods, on the ground)
+    Ship_Hull / Ship_Cabin / Ship_Porthole / Ship_Glass / Ship_Fins / Ship_Pods /
+    Ship_PanelLines / Ship_CabinTrim / Ship_Nozzle / Ship_EngineGlow
   SkyDome            unlit equirect sphere
   CloudSea           merged billboard puffs (attribute _CENTER = puff centre)
   CloudPlume         puffs hugging the launch pad
@@ -177,19 +178,30 @@ def revolution(ys, rs, nseg=64, rows=None, inward=False):
     return param_surface(P, us, th, hint)
 
 
-def tube(points, radii, nseg=12):
-    """Swept circle along a polyline (parallel transport frames)."""
+def tube(points, radii, nseg=12, up=None):
+    """Swept circle along a polyline (parallel transport frames).
+
+    With `up` (one vector, or one per point) the frame is pinned to it instead:
+    closed loops on a curved skin then meet without a seam (pass the loop with
+    its first point repeated at the end)."""
     pts = np.asarray(points, float)
     m = len(pts)
     T = np.gradient(pts, axis=0)
+    if up is not None and np.allclose(pts[0], pts[-1]):
+        T[0] = T[-1] = pts[1] - pts[-2]
     T /= np.linalg.norm(T, axis=1, keepdims=True)
-    ref = np.array([1.0, 0, 0]) if abs(T[0, 0]) < 0.9 else np.array([0, 0, 1.0])
-    N = [np.cross(T[0], ref)]
-    N[0] /= np.linalg.norm(N[0])
-    for i in range(1, m):
-        v = N[-1] - np.dot(N[-1], T[i]) * T[i]
-        N.append(v / np.linalg.norm(v))
-    N = np.array(N)
+    if up is not None:
+        U = np.broadcast_to(np.asarray(up, float), pts.shape)
+        N = U - (U * T).sum(1, keepdims=True) * T
+        N /= np.linalg.norm(N, axis=1, keepdims=True)
+    else:
+        ref = np.array([1.0, 0, 0]) if abs(T[0, 0]) < 0.9 else np.array([0, 0, 1.0])
+        N = [np.cross(T[0], ref)]
+        N[0] /= np.linalg.norm(N[0])
+        for i in range(1, m):
+            v = N[-1] - np.dot(N[-1], T[i]) * T[i]
+            N.append(v / np.linalg.norm(v))
+        N = np.array(N)
     B = np.cross(T, N)
     th = np.linspace(0, 2 * np.pi, nseg + 1)
     c, s = np.cos(th), np.sin(th)
@@ -234,116 +246,184 @@ def smoothstep(a, b, x):
 
 
 # ===================================================================== the vessel
-NRIB = 4
-# outer silhouette (height y, mid-surface radius R)
-PROF_Y = [0.05, 0.22, 0.55, 1.00, 1.60, 2.10, 2.80, 3.40, 4.20, 4.90, 5.40, 6.00, 6.60, 7.30, 8.00, 8.60, 9.20, 9.60, 9.86, 10.0]
-PROF_R = [1.10, 0.97, 0.66, 0.42, 0.50, 0.62, 0.82, 1.02, 1.32, 1.45, 1.42, 1.18, 0.93, 0.69, 0.53, 0.43, 0.33, 0.23, 0.13, 0.0]
-Rf = PchipInterpolator(PROF_Y, PROF_R)
-Y0, Y1 = PROF_Y[0], PROF_Y[-1]
-GAP_A, GAP_B, GAP_MAX = 1.25, 8.9, 0.54
+# Retro silver rocket: slender cigar hull with a needle nose, three swept fins
+# standing on teardrop pods.  The hull is hollow around CABIN_Y: the tour camera
+# flies in through the porthole on +Z and looks at the cabin monitors (the
+# runtime's CABIN_R / CABIN_W must stay inside HULL_R - WALL at that height).
+HULL_Y = [0.60, 0.72, 0.90, 1.40, 2.20, 3.20, 4.20, 4.90, 5.60, 6.60, 7.60, 8.50, 9.30, 9.90, 10.40]
+HULL_R = [0.00, 0.15, 0.24, 0.40, 0.58, 0.72, 0.79, 0.80, 0.78, 0.69, 0.54, 0.36, 0.18, 0.06, 0.00]
+Rf = PchipInterpolator(HULL_Y, HULL_R)
+Y0, Y1 = HULL_Y[0], HULL_Y[-1]
+WALL = 0.06            # hull thickness (outer skin -> cabin wall)
+
+CABIN_Y = 4.85         # porthole centre, matches the runtime FRONT pose / CABIN_Y
+PORT_R = 0.27          # porthole radius (measured along the skin)
+
+FIN_ANGLES = [0.0, 2 * np.pi / 3, -2 * np.pi / 3]   # one fin faces the hero camera
+FIN_ROOT_TOP, FIN_ROOT_BOT = 3.80, 1.55
+FIN_TIP_X, FIN_TIP_TOP, FIN_TIP_BOT = 2.30, 2.75, 1.35
+FIN_THICK = 0.075      # thickness / chord
+
+POD_Y = [0.00, 0.04, 0.14, 0.30, 0.55, 0.90, 1.30, 1.65]
+POD_R = [0.00, 0.07, 0.115, 0.13, 0.115, 0.08, 0.045, 0.00]
 
 
-def gap(y):
-    t = np.clip((y - GAP_A) / (GAP_B - GAP_A), 0, 1)
-    return GAP_MAX * np.sin(np.pi * t ** 0.75) ** 0.55
-
-
-def rib_halfwidth(y):
-    upper = np.pi / NRIB + 0.035 - gap(y)
-    leg = 0.075 / np.maximum(Rf(y), 0.2)          # thin legs below the waist
-    k = smoothstep(0.45, 1.05, y)
-    return leg * (1 - k) + upper * k
-
-
-def rib_thick(y):
-    r = np.maximum(Rf(y), 0)
-    upper = np.minimum(0.14, 0.40 * r)
-    leg = 0.07
-    k = smoothstep(0.45, 1.05, y)
-    return leg * (1 - k) + upper * k
-
-
-def arc_sampling(n):
-    yy = np.linspace(Y0, Y1 - 1e-3, 4000)
-    rr = Rf(yy)
-    seg = np.hypot(np.diff(yy), np.diff(rr) * 1.6)
+def arc_sampling(rfun, y0, y1, n):
+    """Heights spaced evenly along the profile curve, so steep caps get rows too."""
+    yy = np.linspace(y0, y1, 4000)
+    seg = np.hypot(np.diff(yy), np.diff(rfun(yy)))
     cum = np.concatenate([[0], np.cumsum(seg)])
     return np.interp(np.linspace(0, cum[-1], n), cum, yy)
 
 
-SE = 2.6  # superellipse exponent of the rib cross-section
+def lathe(rfun, y0, y1, rows, nseg, inward=False):
+    ys = arc_sampling(rfun, y0, y1, rows)
+    th = np.linspace(0, 2 * np.pi, nseg + 1)
+
+    def P(Y, T):
+        r = np.maximum(rfun(np.clip(Y, y0, y1)), 0)
+        return np.stack([r * np.sin(T), Y, r * np.cos(T)], -1)
+
+    hint = (lambda p: -radial_hint(p)) if inward else radial_hint
+    pos, nrm, idx = param_surface(P, ys, th, hint)
+    # rows that collapse onto the axis (nose tip, pod base) get an axial normal
+    axis = np.hypot(pos[:, 0], pos[:, 2]) < 1e-6
+    if axis.any():
+        up = pos[axis, 1] > (y0 + y1) / 2
+        nrm[axis] = np.where(up[:, None], [0, 1.0, 0], [0, -1.0, 0]) * (-1 if inward else 1)
+    return pos, nrm, idx
 
 
-def rib_surface(phi_c, half):
-    """half=+1 outer skin (pearl), -1 inner skin (champagne)."""
-    ys = arc_sampling(190)
-    ss = np.linspace(0, np.pi, 30) if half > 0 else np.linspace(np.pi, 2 * np.pi, 30)
+def on_hull(dx, dy, inset=0.0):
+    """Point on the hull skin at arc offset (dx, dy) from the porthole centre on +Z."""
+    y = CABIN_Y + dy
+    r = Rf(y)
+    phi = dx / r
+    r = r - inset
+    return np.stack([r * np.sin(phi), y, r * np.cos(phi)], -1)
 
-    def P(Y, S):
-        y = np.clip(Y, Y0, Y1 - 1e-4)
-        c, sn = np.cos(S), np.sin(S)
-        ex = np.sign(c) * np.abs(c) ** (2 / SE)
-        ey = np.sign(sn) * np.abs(sn) ** (2 / SE)
-        phi = phi_c + rib_halfwidth(y) * ex
-        r = np.maximum(Rf(y) + rib_thick(y) * ey, 0)
-        return np.stack([r * np.sin(phi), y, r * np.cos(phi)], -1)
 
-    def hint(p):
-        h = radial_hint(p) * half
+def cut_porthole(surf):
+    """Drop the triangles of a hull skin that fall inside the porthole."""
+    pos, nrm, idx = surf
+    tri = idx.reshape(-1, 3)
+    c = pos[tri].mean(1)
+    phi = np.arctan2(c[:, 0], c[:, 2])
+    dx, dy = Rf(c[:, 1]) * phi, c[:, 1] - CABIN_Y
+    keep = (dx ** 2 + dy ** 2 > PORT_R ** 2) | (c[:, 2] < 0)
+    return pos, nrm, tri[keep].reshape(-1)
+
+
+def porthole():
+    th = np.linspace(0, 2 * np.pi, 97)
+    lip = []
+    for inset, rad in ((0.0, 0.045), (WALL, 0.03)):
+        pts = on_hull(PORT_R * np.cos(th), PORT_R * np.sin(th), inset)
+        lip.append(tube(pts, np.full(len(th), rad), 12, up=radial_hint(pts)))
+    # sleeve joining the outer skin to the cabin wall
+    ts = np.linspace(0, 1, 4)
+
+    def P(T, S):
+        return on_hull((PORT_R - 0.03) * np.cos(T), (PORT_R - 0.03) * np.sin(T), S * WALL)
+
+    def toward_axis(p):
+        h = -p.copy()
+        h[..., 1] = CABIN_Y - p[..., 1]
+        h[..., 2] = 0
         return h
 
-    return param_surface(P, ys, ss, hint)
+    sleeve = param_surface(P, th, ts, toward_axis)
+    ring = merge(lip + [sleeve])
+
+    # curved glass pane just under the outer lip
+    rs = np.linspace(0.002, PORT_R, 8)
+
+    def G(R, T):
+        return on_hull(R * np.cos(T), R * np.sin(T), 0.025)
+
+    glass = param_surface(G, rs, th, radial_hint)
+    return ring, glass
+
+
+def panel_outline(points_fn, w, h, up, n=24):
+    """Engraved rectangle: closed tube through points_fn(u, v), u/v in local units.
+    `up` is the skin normal, either a vector or a function of the points."""
+    edge = lambda a, b: np.linspace(a, b, n, endpoint=False)   # corners appear once
+    us = np.concatenate([edge(-w / 2, w / 2), np.full(n, w / 2), edge(w / 2, -w / 2), np.full(n, -w / 2)])
+    vs = np.concatenate([np.full(n, h / 2), edge(h / 2, -h / 2), np.full(n, -h / 2), edge(-h / 2, h / 2)])
+    pts = points_fn(us, vs)
+    pts = np.concatenate([pts, pts[:1]])
+    return tube(pts, np.full(len(pts), 0.006), 6, up=up(pts) if callable(up) else up)
+
+
+def fin_point(a, s, v, side, lift=0.0):
+    """Fin surface.  s in [0,1] runs leading -> trailing edge (chord x = s^2 keeps
+    the rounded nose smooth), v in [0,1] runs root -> tip, side = +-1."""
+    e_r = np.array([np.sin(a), 0.0, np.cos(a)])
+    e_t = np.array([np.cos(a), 0.0, -np.sin(a)])
+    lead = np.stack([Rf(FIN_ROOT_TOP) * 0.82 + (FIN_TIP_X - Rf(FIN_ROOT_TOP) * 0.82) * v,
+                     FIN_ROOT_TOP + (FIN_TIP_TOP - FIN_ROOT_TOP) * v], -1)
+    trail = np.stack([Rf(FIN_ROOT_BOT) * 0.82 + (FIN_TIP_X - Rf(FIN_ROOT_BOT) * 0.82) * v,
+                      FIN_ROOT_BOT + (FIN_TIP_BOT - FIN_ROOT_BOT) * v], -1)
+    x = s * s
+    chord = np.linalg.norm(trail - lead, axis=-1)
+    naca = 5 * (0.2969 * s - 0.1260 * x - 0.3516 * x ** 2 + 0.2843 * x ** 3 - 0.1036 * x ** 4)
+    taper = (1 - 0.4 * v) * np.sqrt(np.clip(1 - v ** 10, 0, 1))
+    half = FIN_THICK * chord * naca * taper
+    rho_y = lead + x[..., None] * (trail - lead)
+    return (rho_y[..., :1] * e_r + rho_y[..., 1:] * np.array([0, 1.0, 0])
+            + (side * half + side * lift)[..., None] * e_t)
 
 
 def build_ship():
-    outer, inner = [], []
-    for k in range(NRIB):
-        phi = np.pi / NRIB + k * 2 * np.pi / NRIB  # gaps face +Z/-Z/+X/-X
-        outer.append(rib_surface(phi, +1))
-        inner.append(rib_surface(phi, -1))
-    shell = merge(outer)
-    shell_in = merge(inner)
+    # grid fine enough that the porthole cut stays under the 0.045 lip
+    hull = cut_porthole(lathe(Rf, Y0, Y1, 220, 112))
+    cabin = cut_porthole(lathe(lambda y: Rf(y) - WALL, Y0, Y1, 220, 112, inward=True))
+    port_ring, glass = porthole()
 
-    # golden core spindle
-    core = revolution([0.30, 0.55, 0.90, 1.50, 2.40, 3.60, 4.90, 6.20, 7.40, 8.60, 9.45],
-                      [0.20, 0.22, 0.20, 0.15, 0.13, 0.19, 0.24, 0.19, 0.12, 0.08, 0.0], nseg=40, rows=90)
+    fins, pods, lines = [], [], []
+    ss, vs = np.linspace(0, 1, 40), np.linspace(0, 1, 32)
+    for a in FIN_ANGLES:
+        for side in (1, -1):
+            e_t = np.array([np.cos(a), 0.0, -np.sin(a)])
+            fins.append(param_surface(lambda S, V, a=a, side=side: fin_point(a, S, V, side), ss, vs,
+                                      lambda p, e=e_t * side: np.broadcast_to(e, p.shape)))
+            # hatch outline near the outer trailing corner, like the reference
+            lines.append(panel_outline(
+                lambda u, v, a=a, side=side: fin_point(a, np.sqrt(0.76 + u), 0.66 + v, side, 0.004), 0.22, 0.34,
+                e_t * side))
+        e_r = np.array([np.sin(a), 0.0, np.cos(a)])
+        pp, pn, pi = lathe(PchipInterpolator(POD_Y, POD_R), POD_Y[0], POD_Y[-1], 40, 32)
+        pods.append((pp + FIN_TIP_X * e_r, pn, pi))
 
-    # struts inside each window
-    struts = []
-    ys = np.linspace(1.55, 8.1, 60)
-    for k in range(NRIB):
-        base = k * 2 * np.pi / NRIB
-        for off in (-0.085, 0.085):
-            r = Rf(ys) - rib_thick(ys) * 0.35
-            pts = np.stack([r * np.sin(base + off), ys, r * np.cos(base + off)], -1)
-            rad = 0.028 + 0.012 * np.sin(np.pi * (ys - ys[0]) / (ys[-1] - ys[0]))
-            struts.append(tube(pts, rad, 10))
-    struts = merge(struts)
+    # hull hatches above and below the porthole
+    for cy, w, h in ((5.78, 0.22, 0.28), (4.26, 0.24, 0.34)):
+        lines.append(panel_outline(lambda u, v, cy=cy: on_hull(u, cy - CABIN_Y + v, -0.004), w, h, radial_hint))
 
-    # secondary legs (between the main rib legs) + feet
-    legs, feet = [], []
-    t = np.linspace(0, 1, 30)
-    for k in range(NRIB):
-        a = k * 2 * np.pi / NRIB
-        r = 0.28 + 0.62 * t ** 1.6
-        y = 1.05 - 0.98 * t ** 0.9
-        pts = np.stack([r * np.sin(a), y, r * np.cos(a)], -1)
-        legs.append(tube(pts, 0.055 - 0.02 * t, 10))
-        feet.append(ellipsoid(pts[-1] + [0, -0.01, 0], (0.11, 0.035, 0.11)))
-        a2 = np.pi / NRIB + k * 2 * np.pi / NRIB
-        feet.append(ellipsoid(np.array([Rf(0.06) * np.sin(a2), 0.04, Rf(0.06) * np.cos(a2)]), (0.17, 0.045, 0.17)))
-    legs, feet = merge(legs), merge(feet)
+    # cabin: two frame rings and four stringers between the monitor bays
+    trim = []
+    th = np.linspace(0, 2 * np.pi, 129)
+    for y in (4.45, 5.25):
+        r = Rf(y) - WALL - 0.012
+        ring = np.stack([r * np.sin(th), np.full_like(th, y), r * np.cos(th)], -1)
+        trim.append(tube(ring, np.full(len(th), 0.022), 8, up=radial_hint(ring)))
+    ys = np.linspace(4.3, 5.4, 20)
+    for k in range(4):
+        a = np.pi / 4 + k * np.pi / 2
+        r = Rf(ys) - WALL - 0.012
+        trim.append(tube(np.stack([r * np.sin(a), ys, r * np.cos(a)], -1), np.full(len(ys), 0.018), 8))
 
     # engine bell (outer + inner skin) and glow disk
-    n_out = revolution([0.12, 0.25, 0.42, 0.62], [0.30, 0.25, 0.19, 0.17], nseg=40, rows=12)
-    n_in = revolution([0.12, 0.25, 0.42, 0.62], [0.28, 0.23, 0.17, 0.15], nseg=40, rows=12, inward=True)
+    by, br = [0.40, 0.48, 0.60, 0.74], [0.19, 0.17, 0.135, 0.11]
+    n_out = revolution(by, br, nseg=40, rows=12)
+    n_in = revolution(by, [r - 0.02 for r in br], nseg=40, rows=12, inward=True)
     nozzle = merge([n_out, n_in])
-    th = np.linspace(0, 2 * np.pi, 41)
-    gpos = np.concatenate([[[0, 0.30, 0]], np.stack([0.2 * np.sin(th), np.full_like(th, 0.30), 0.2 * np.cos(th)], -1)])
+    tg = np.linspace(0, 2 * np.pi, 41)
+    gpos = np.concatenate([[[0, 0.46, 0]], np.stack([0.15 * np.sin(tg), np.full_like(tg, 0.46), 0.15 * np.cos(tg)], -1)])
     gidx = np.stack([np.zeros(40, int), np.arange(2, 42), np.arange(1, 41)], -1).reshape(-1)
     glow = (gpos, np.tile([0, -1.0, 0], (len(gpos), 1)), gidx)
-    return dict(shell=shell, shell_in=shell_in, core=core, struts=struts, legs=legs, feet=feet,
-                nozzle=nozzle, glow=glow)
+    return dict(hull=hull, cabin=cabin, port=port_ring, glass=glass, fins=merge(fins), pods=merge(pods),
+                lines=merge(lines), trim=merge(trim), nozzle=nozzle, glow=glow)
 
 
 # ===================================================================== sky dome
@@ -415,8 +495,10 @@ def cloud_sea():
             amp = 0.7 + 0.012 * r
             nz = noise2(x * 0.6, z * 0.6, 3)
             top = 1.45 + amp * nz + rng.normal(0, 0.12 * amp)
-            # shallow valley between the hero camera and the pad so the hull stays readable
-            top -= 1.2 * smoothstep(-6.0, 10.0, z) * (1 - smoothstep(8.0, 26.0, abs(x)))
+            # valley between the hero camera and the pad so the fins and pods stay readable;
+            # it closes again before the camera so the foreground stays a full cloud bank
+            top -= (2.6 * smoothstep(-6.0, 4.0, z) * (1 - smoothstep(6.0, 13.0, z))
+                    * (1 - smoothstep(8.0, 26.0, abs(x))))
             cy = top - h * 0.12
             if abs(z) < 2.2 and abs(x) < 1.6 + w * 0.3:
                 continue
@@ -436,9 +518,9 @@ def cloud_plume():
     puffs = []
     for i in range(120):
         a = rng.uniform(0, 2 * np.pi)
-        rad = rng.uniform(1.3, 3.8)
+        rad = rng.uniform(2.9, 4.8)       # ring around the fin tips, not over them
         x, z = rad * np.sin(a) * 1.25, rad * np.cos(a)
-        y = rng.uniform(0.8, 2.4) + max(0, 2.6 - rad) * rng.uniform(0, 0.9)
+        y = rng.uniform(0.4, 1.6) + max(0, 2.6 - rad) * rng.uniform(0, 0.9)
         w = rng.uniform(1.8, 3.6) * (1.1 - (y - 1) * 0.08)
         h = w * 0.78
         if abs(z) < 1.7 and abs(x) - w * 0.32 < 1.25:
@@ -556,10 +638,16 @@ def main():
         "extensions": {"KHR_materials_clearcoat": {"clearcoatFactor": 0.55, "clearcoatRoughnessFactor": 0.12},
                        "KHR_materials_iridescence": {"iridescenceFactor": 0.3, "iridescenceIor": 1.3,
                                                      "iridescenceThicknessMinimum": 160, "iridescenceThicknessMaximum": 420}}})
-    M["champagne"] = g.material({"name": "Ship_Champagne", "pbrMetallicRoughness": {
-        "baseColorFactor": [0.93, 0.82, 0.64, 1], "metallicFactor": 0.65, "roughnessFactor": 0.24}})
-    M["gold"] = g.material({"name": "Ship_GoldCore", "pbrMetallicRoughness": {
-        "baseColorFactor": [0.80, 0.60, 0.33, 1], "metallicFactor": 1.0, "roughnessFactor": 0.28}})
+    M["alu"] = g.material({"name": "Ship_Aluminium", "pbrMetallicRoughness": {
+        "baseColorFactor": [0.90, 0.91, 0.93, 1], "metallicFactor": 1.0, "roughnessFactor": 0.3}})
+    M["cabin"] = g.material({"name": "Ship_Cabin", "pbrMetallicRoughness": {
+        "baseColorFactor": [0.86, 0.88, 0.92, 1], "metallicFactor": 0.2, "roughnessFactor": 0.55}})
+    M["trim"] = g.material({"name": "Ship_CabinTrim", "pbrMetallicRoughness": {
+        "baseColorFactor": [0.55, 0.58, 0.63, 1], "metallicFactor": 0.8, "roughnessFactor": 0.35}})
+    M["panel"] = g.material({"name": "Ship_PanelLine", "pbrMetallicRoughness": {
+        "baseColorFactor": [0.18, 0.19, 0.21, 1], "metallicFactor": 0.6, "roughnessFactor": 0.5}})
+    M["glass"] = g.material({"name": "Ship_Glass", "alphaMode": "BLEND", "doubleSided": True, "pbrMetallicRoughness": {
+        "baseColorFactor": [0.70, 0.80, 0.92, 0.35], "metallicFactor": 0.0, "roughnessFactor": 0.05}})
     M["chrome"] = g.material({"name": "Ship_Chrome", "pbrMetallicRoughness": {
         "baseColorFactor": [0.92, 0.92, 0.93, 1], "metallicFactor": 1.0, "roughnessFactor": 0.12}})
     M["nozzle"] = g.material({"name": "Ship_Nozzle", "pbrMetallicRoughness": {
@@ -587,10 +675,11 @@ def main():
     def prim(t, mat):
         return {"pos": t[0], "nrm": t[1], "idx": t[2], "mat": M[mat]}
 
-    root = g.node("SkyShip", extras={"height": 10.0})
-    for name, key, mat in [("Ship_Shell", "shell", "pearl"), ("Ship_ShellInner", "shell_in", "champagne"),
-                           ("Ship_Core", "core", "gold"), ("Ship_Struts", "struts", "chrome"),
-                           ("Ship_Legs", "legs", "pearl"), ("Ship_Feet", "feet", "chrome"),
+    root = g.node("SkyShip", extras={"height": Y1})
+    for name, key, mat in [("Ship_Hull", "hull", "alu"), ("Ship_Cabin", "cabin", "cabin"),
+                           ("Ship_Porthole", "port", "chrome"), ("Ship_Glass", "glass", "glass"),
+                           ("Ship_Fins", "fins", "alu"), ("Ship_Pods", "pods", "alu"),
+                           ("Ship_PanelLines", "lines", "panel"), ("Ship_CabinTrim", "trim", "trim"),
                            ("Ship_Nozzle", "nozzle", "nozzle"), ("Ship_EngineGlow", "glow", "engine")]:
         mi = g.mesh(name, [prim(s[key], mat)])
         g.node(name, parent=root, mesh=mi)
@@ -620,7 +709,7 @@ def main():
                extras={"length": L, "speed": float(rng.uniform(0.8, 1.2)), "station": STATION_IDS[i]})
         g.node(f"LightTrail_{i:02d}_Head", parent=lt, mesh=glow_mesh, translation=[x, y + 0.2, z + 0.1],
                scale=[w * 5, w * 5, 1])
-    eg = g.node("EngineGlowSprite", parent=root, mesh=glow_mesh, translation=[0, 0.2, 0], scale=[3.5, 3.5, 1])
+    eg = g.node("EngineGlowSprite", parent=root, mesh=glow_mesh, translation=[0, 0.35, 0], scale=[3.5, 3.5, 1])
 
     # --- curved (convex) monitor template, cloned at runtime for every screen
     M["rim"] = g.material({"name": "Monitor_Rim", "pbrMetallicRoughness": {

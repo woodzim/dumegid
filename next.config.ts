@@ -4,6 +4,10 @@ const nextConfig: NextConfig = {
   /* config options here */
   cacheComponents: true,
   partialPrefetching: true,
+  // the ecosystem launcher moved to the home page
+  async redirects() {
+    return [{ source: "/ekosistem", destination: "/", permanent: true }];
+  },
   turbopack: {
     rules: {
       "*.css": {
